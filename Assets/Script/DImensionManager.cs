@@ -23,6 +23,9 @@ public class DimensionManager : MonoBehaviour
     private float swipeThreshold = 50f;
     private float doubleTapTime = 0.3f;
     private float lastTapTime = 0f;
+    [Range(0f, 0.5f)]
+    public float tapZoneMargin = 0.25f; // 0.25 = 25% margin on each side (center 50% usable)
+
 
     void Start()
     {
@@ -58,7 +61,11 @@ public class DimensionManager : MonoBehaviour
         float screenWidth = Screen.width;
         float screenHeight = Screen.height;
 
-        bool isInMiddleZone = touchPos.y > screenHeight * 0.25f && touchPos.y < screenHeight * 0.75f;
+        bool isInMiddleZone =
+            touchPos.y > screenHeight * tapZoneMargin && touchPos.y < screenHeight * (1f - tapZoneMargin) &&
+            touchPos.x > screenWidth * tapZoneMargin && touchPos.x < screenWidth * (1f - tapZoneMargin);
+
+
 
         switch (touch.phase)
         {
@@ -109,6 +116,8 @@ public class DimensionManager : MonoBehaviour
 
         StartCoroutine(SmoothRotate(is2D ? rotation2D : rotation3D));
         OnDimensionChange?.Invoke(is2D);
+        movementScript.active2DOffsetIndex = cameraPOVIndex;
+
     }
 
     void NextPOV()
@@ -116,14 +125,19 @@ public class DimensionManager : MonoBehaviour
         int max = cameraFollow.is2D ? cameraFollow.cameraOffsets2D.Length : cameraFollow.cameraOffsets3D.Length;
         cameraPOVIndex = (cameraPOVIndex + 1) % max;
         cameraFollow.SetViewIndex(cameraPOVIndex);
+
+        movementScript.active2DOffsetIndex = cameraPOVIndex; // ✅ Sync movement direction
     }
 
     void PreviousPOV()
     {
         int max = cameraFollow.is2D ? cameraFollow.cameraOffsets2D.Length : cameraFollow.cameraOffsets3D.Length;
-        cameraPOVIndex = (cameraPOVIndex - 1 + max) % max; // make it wrap around correctly
+        cameraPOVIndex = (cameraPOVIndex - 1 + max) % max;
         cameraFollow.SetViewIndex(cameraPOVIndex);
+
+        movementScript.active2DOffsetIndex = cameraPOVIndex; // ✅ Sync movement direction
     }
+
 
 
     System.Collections.IEnumerator SmoothRotate(Quaternion targetRotation)

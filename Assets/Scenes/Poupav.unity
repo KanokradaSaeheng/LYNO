@@ -19025,7 +19025,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveDistance: 1
   moveSpeed: 5
-  cameraFollow: {fileID: 0}
+  cameraFollow: {fileID: 195179645}
+  active2DOffsetIndex: 0
   is2DMode: 0
 --- !u!64 &864678453
 MeshCollider:
@@ -37613,6 +37614,7 @@ MonoBehaviour:
   offset2D: {x: 0, y: 0, z: 0}
   isRotating: 0
   movementScript: {fileID: 864678452}
+  tapZoneMargin: 0.25
 --- !u!4 &1675825422
 Transform:
   m_ObjectHideFlags: 0

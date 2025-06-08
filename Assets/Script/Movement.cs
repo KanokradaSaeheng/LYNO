@@ -6,6 +6,8 @@ public class Movement : MonoBehaviour
     public float moveDistance = 1f;
     public float moveSpeed = 5f;
     public CameraFollow cameraFollow;
+    public int active2DOffsetIndex; // 0 to 3, depending on the active offset
+
 
     private bool isMoving = false;
     public bool is2DMode = false;
@@ -39,7 +41,7 @@ public class Movement : MonoBehaviour
 
     }
 
-   Vector3 GetTouchDirection()
+  Vector3 GetTouchDirection()
 {
     if (Input.touchCount == 0) return Vector3.zero;
 
@@ -47,108 +49,105 @@ public class Movement : MonoBehaviour
     float screenWidth = Screen.width;
     float screenHeight = Screen.height;
 
-    // Zones
+    // Define touch zones
     bool isTop = touchPos.y > screenHeight * 0.75f;
     bool isBottom = touchPos.y < screenHeight * 0.25f;
-    bool isLeft = touchPos.x < screenWidth * 0.25f && touchPos.y >= screenHeight * 0.25f && touchPos.y <= screenHeight * 0.75f;
-    bool isRight = touchPos.x > screenWidth * 0.75f && touchPos.y >= screenHeight * 0.25f && touchPos.y <= screenHeight * 0.75f;
+    bool isLeft = touchPos.x < screenWidth * 0.25f;
+    bool isRight = touchPos.x > screenWidth * 0.75f;
 
-    if (is2DMode && cameraFollow != null)   
+    // ✨ Handle 2D mode (only move along X axis)
+    if (is2DMode)
     {
-        int viewIndex = cameraFollow.currentViewIndex;
-
-        if (isLeft)
+        switch (active2DOffsetIndex)
         {
-            return viewIndex switch
-            {
-                0 => Vector3.right,
-                1 => Vector3.forward,
-                2 => Vector3.left,
-                3 => Vector3.back,
-                _ => Vector3.zero
-            };
+            case 0: // Camera looking from +X (Right)
+                if (isLeft) return Vector3.back;
+                if (isRight) return Vector3.forward;
+                break;
+            case 1: // Camera looking from -Z (Down) ✅ this is your working one
+                if (isLeft) return Vector3.left;
+                if (isRight) return Vector3.right;
+                break;
+            case 2: // Camera looking from -X (Left)
+                if (isLeft) return Vector3.forward;
+                if (isRight) return Vector3.back;
+                break;
+            case 3: // Camera looking from +Z (Up)
+                if (isLeft) return Vector3.right;
+                if (isRight) return Vector3.left;
+                break;
         }
-        else if (isRight)
-        {
-            return viewIndex switch
-            {
-                0 => Vector3.left,
-                1 => Vector3.back,
-                2 => Vector3.right,
-                3 => Vector3.forward,
-                _ => Vector3.zero
-            };
-        }
-    
-       
         return Vector3.zero;
     }
 
-    else
+
+    // ✨ Handle 3D mode (allow all directions based on camera rotation)
+    float yRot = Camera.main.transform.eulerAngles.y;
+    float[] angles = { 45f, 135f, 225f, 315f };
+    float closest = 0f;
+    float minDiff = float.MaxValue;
+
+    foreach (float angle in angles)
     {
-        float yRot = Camera.main.transform.eulerAngles.y;
-        float[] angles = { 45f, 135f, 225f, 315f };
-        float closest = 0f;
-        float minDiff = float.MaxValue;
+        float diff = Mathf.Abs(Mathf.DeltaAngle(yRot, angle));
+        if (diff < minDiff)
+        {
+            minDiff = diff;
+            closest = angle;
+        }
+    }
 
-        foreach (float angle in angles)
+    // Return direction based on zone and camera angle
+    if (isLeft)
+    {
+        return closest switch
         {
-            float diff = Mathf.Abs(Mathf.DeltaAngle(yRot, angle));
-            if (diff < minDiff)
-            {
-                minDiff = diff;
-                closest = angle;
-            }
-        }
-
-        if (isLeft)
+            45f => Vector3.forward,
+            135f => Vector3.right,
+            225f => Vector3.back,
+            315f => Vector3.left,
+            _ => Vector3.zero
+        };
+    }
+    else if (isRight)
+    {
+        return closest switch
         {
-            return closest switch
-            {
-                45f => Vector3.forward,
-                135f => Vector3.right,
-                225f => Vector3.back,
-                315f => Vector3.left,
-                _ => Vector3.zero
-            };
-        }
-        else if (isRight)
+            45f => Vector3.back,
+            135f => Vector3.left,
+            225f => Vector3.forward,
+            315f => Vector3.right,
+            _ => Vector3.zero
+        };
+    }
+    else if (isTop)
+    {
+        return closest switch
         {
-            return closest switch
-            {
-                45f => Vector3.back,
-                135f => Vector3.left,
-                225f => Vector3.forward,
-                315f => Vector3.right,
-                _ => Vector3.zero
-            };
-        }
-        else if (isTop)
+            45f => Vector3.right,
+            135f => Vector3.back,
+            225f => Vector3.left,
+            315f => Vector3.forward,
+            _ => Vector3.zero
+        };
+    }
+    else if (isBottom)
+    {
+        return closest switch
         {
-            return closest switch
-            {
-                45f => Vector3.right,
-                135f => Vector3.back,
-                225f => Vector3.left,
-                315f => Vector3.forward,
-                _ => Vector3.zero
-            };
-        }
-        else if (isBottom)
-        {
-            return closest switch
-            {
-                45f => Vector3.left,
-                135f => Vector3.forward,
-                225f => Vector3.right,
-                315f => Vector3.back,
-                _ => Vector3.zero
-            };
-        }
+            45f => Vector3.left,
+            135f => Vector3.forward,
+            225f => Vector3.right,
+            315f => Vector3.back,
+            _ => Vector3.zero
+        };
     }
 
     return Vector3.zero;
 }
+
+
+
 
     
 
