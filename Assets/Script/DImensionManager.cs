@@ -20,7 +20,7 @@ public class DimensionManager : MonoBehaviour
     public static bool Is2DModeStatic { get; private set; }
 
     private Vector2 swipeStart;
-    private float swipeThreshold = 50f;
+    private float swipeThreshold = 25f;
     private float doubleTapTime = 0.3f;
     private float lastTapTime = 0f;
     [Range(0f, 0.5f)]
