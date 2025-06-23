@@ -1,18 +1,25 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class Movement : MonoBehaviour
 {
+    [Header("Movement Settings")]
     public float moveDistance = 1f;
     public float moveSpeed = 5f;
+
+    [Header("Camera + Illusion")]
     public CameraFollow cameraFollow;
+    public IllusionWalkSystem illusionSystem;
+    public bool allowIllusionMovement = true;
+    public bool is2DMode = false;
     public int active2DOffsetIndex;
-    public float illusionScreenDistance = 100f;
-    public float illusionTolerance = 15f;
+
+    [Header("Debug + Player Ref")]
+    public bool drawDebug = true;
     public Transform player;
 
     private bool isMoving = false;
-    public bool is2DMode = false;
     private Vector3 targetPos;
 
     void Start()
@@ -25,34 +32,34 @@ public class Movement : MonoBehaviour
     {
         if (isMoving) return;
 
-        Vector3 direction = GetTouchDirection();
+        Vector3 inputDir = GetTouchDirection();
+        if (inputDir == Vector3.zero) return;
 
-        if (direction != Vector3.zero)
+        if (CanMoveTo(inputDir, out Vector3 finalTarget))
         {
-            if (CanMoveTo(direction))
-            {
-                targetPos = transform.position + direction * moveDistance;
-                StartCoroutine(MoveToPosition(targetPos));
-            }
+            StartCoroutine(MoveToPosition(finalTarget));
         }
     }
 
-    bool CanMoveTo(Vector3 direction)
+    bool CanMoveTo(Vector3 direction, out Vector3 finalTarget)
     {
-        Vector3 nextPos = transform.position + direction * moveDistance;
+        finalTarget = transform.position + direction * moveDistance;
 
-        if (!IsBlocked(nextPos))
+        if (!IsBlocked(finalTarget))
         {
-            Debug.Log("✔ Real platform found.");
-            return true;
-        }
-        else if (is2DMode && CanMoveByIllusion(direction))
-        {
-            Debug.Log("✨ Illusion platform allowed.");
+            if (drawDebug) Debug.Log("✔ Real platform found.");
             return true;
         }
 
-        Debug.Log("❌ Move blocked.");
+        // Illusion logic
+        if (allowIllusionMovement && illusionSystem.TryGetIllusionTarget(direction, out Vector3 illusionTarget))
+        {
+            if (drawDebug) Debug.Log("✨ Illusion move allowed to " + illusionTarget);
+            finalTarget = illusionTarget;
+            return true;
+        }
+
+        if (drawDebug) Debug.Log("❌ Move blocked.");
         return false;
     }
 
@@ -66,39 +73,13 @@ public class Movement : MonoBehaviour
         {
             if (hit.collider.CompareTag("Platform"))
             {
-                Debug.DrawLine(rayOrigin, hit.point, Color.green, 1f);
+                if (drawDebug) Debug.DrawLine(rayOrigin, hit.point, Color.green, 1f);
                 return false;
             }
         }
 
-        Debug.DrawLine(rayOrigin, rayOrigin + rayDirection * rayLength, Color.red, 1f);
+        if (drawDebug) Debug.DrawLine(rayOrigin, rayOrigin + rayDirection * rayLength, Color.red, 1f);
         return true;
-    }
-
-    bool CanMoveByIllusion(Vector3 moveDirection)
-    {
-        Vector3 playerScreen = Camera.main.WorldToScreenPoint(transform.position + Vector3.up * 0.5f);
-        Vector3 targetWorld = transform.position + moveDirection * moveDistance;
-        Vector3 targetScreen = Camera.main.WorldToScreenPoint(targetWorld);
-        Vector2 screenDirection = (targetScreen - playerScreen).normalized;
-
-        GameObject[] platforms = GameObject.FindGameObjectsWithTag("Platform");
-
-        foreach (GameObject platform in platforms)
-        {
-            Vector3 platformScreen = Camera.main.WorldToScreenPoint(platform.transform.position);
-            Vector2 expectedScreen = new Vector2(playerScreen.x, playerScreen.y) + screenDirection * illusionScreenDistance;
-
-            if (Vector2.Distance(platformScreen, expectedScreen) < illusionTolerance)
-            {
-                Debug.DrawLine(playerScreen, platformScreen, Color.green, 1f);
-                return true;
-            }
-
-            Debug.DrawLine(playerScreen, platformScreen, Color.red, 0.2f);
-        }
-
-        return false;
     }
 
     Vector3 GetTouchDirection()
@@ -106,35 +87,39 @@ public class Movement : MonoBehaviour
         if (Input.touchCount == 0) return Vector3.zero;
 
         Vector2 touchPos = Input.GetTouch(0).position;
-        float screenWidth = Screen.width;
-        float screenHeight = Screen.height;
+        float w = Screen.width;
+        float h = Screen.height;
 
-        bool isTop = touchPos.y > screenHeight * 0.75f;
-        bool isBottom = touchPos.y < screenHeight * 0.25f;
-        bool isLeft = touchPos.x < screenWidth * 0.25f;
-        bool isRight = touchPos.x > screenWidth * 0.75f;
+        bool isTop = touchPos.y > h * 0.75f;
+        bool isBottom = touchPos.y < h * 0.25f;
+        bool isLeft = touchPos.x < w * 0.25f;
+        bool isRight = touchPos.x > w * 0.75f;
 
         if (is2DMode)
         {
-            switch (active2DOffsetIndex)
+            return active2DOffsetIndex switch
             {
-                case 0: if (isLeft) return Vector3.back; if (isRight) return Vector3.forward; break;
-                case 1: if (isLeft) return Vector3.left; if (isRight) return Vector3.right; break;
-                case 2: if (isLeft) return Vector3.forward; if (isRight) return Vector3.back; break;
-                case 3: if (isLeft) return Vector3.right; if (isRight) return Vector3.left; break;
-            }
-            return Vector3.zero;
+                0 => isLeft ? Vector3.back : isRight ? Vector3.forward : Vector3.zero,
+                1 => isLeft ? Vector3.left : isRight ? Vector3.right : Vector3.zero,
+                2 => isLeft ? Vector3.forward : isRight ? Vector3.back : Vector3.zero,
+                3 => isLeft ? Vector3.right : isRight ? Vector3.left : Vector3.zero,
+                _ => Vector3.zero
+            };
         }
 
         float yRot = Camera.main.transform.eulerAngles.y;
         float[] angles = { 45f, 135f, 225f, 315f };
-        float closest = 0f;
-        float minDiff = float.MaxValue;
+        float closest = angles[0];
+        float minDiff = Mathf.Infinity;
 
         foreach (float angle in angles)
         {
             float diff = Mathf.Abs(Mathf.DeltaAngle(yRot, angle));
-            if (diff < minDiff) { minDiff = diff; closest = angle; }
+            if (diff < minDiff)
+            {
+                closest = angle;
+                minDiff = diff;
+            }
         }
 
         if (isLeft)
@@ -148,7 +133,7 @@ public class Movement : MonoBehaviour
                 _ => Vector3.zero
             };
         }
-        else if (isRight)
+        if (isRight)
         {
             return closest switch
             {
@@ -159,7 +144,7 @@ public class Movement : MonoBehaviour
                 _ => Vector3.zero
             };
         }
-        else if (isTop)
+        if (isTop)
         {
             return closest switch
             {
@@ -170,7 +155,7 @@ public class Movement : MonoBehaviour
                 _ => Vector3.zero
             };
         }
-        else if (isBottom)
+        if (isBottom)
         {
             return closest switch
             {
