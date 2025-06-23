@@ -26,15 +26,32 @@ public class PathManager : MonoBehaviour
                     Debug.Log("🔗 Spawning connector between: " + piece.name + " → " + linked.name);
 
                     GameObject conn = Instantiate(connectorPrefab);
-                    Vector3 mid = (piece.transform.position + linked.transform.position) / 2f;
+
+                    // Start and end of illusion connection
+                    Vector3 start = piece.transform.position;
+                    Vector3 end = linked.transform.position;
+
+                    // Offset the ends to prevent overlap with block center
+                    Vector3 dir = (end - start).normalized;
+                    float offset = 0.5f;
+
+                    Vector3 p1 = start + dir * offset;
+                    Vector3 p2 = end - dir * offset;
+
+                    Vector3 mid = (p1 + p2) / 2f;
+                    float length = Vector3.Distance(p1, p2);
+
                     conn.transform.position = mid;
-
-                    Vector3 dir = linked.transform.position - piece.transform.position;
                     conn.transform.rotation = Quaternion.LookRotation(dir);
+                    conn.transform.localScale = new Vector3(1f, 1f, length); // square connector
 
-                    // Get prefab's X (or Y) to use as square width/height
-                    float squareSize = connectorPrefab.transform.localScale.x;
-                    conn.transform.localScale = new Vector3(squareSize, squareSize, dir.magnitude);
+                    // Add collider dynamically
+                    if (!conn.TryGetComponent<BoxCollider>(out var col))
+                        col = conn.AddComponent<BoxCollider>();
+
+                    col.isTrigger = false;
+                    col.size = Vector3.one;
+                    col.center = new Vector3(0f, 0f, 0.5f); // forward push for stretching
 
                     currentConnectors.Add(conn);
                 }

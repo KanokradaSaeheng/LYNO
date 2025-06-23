@@ -52,12 +52,13 @@ public class Movement : MonoBehaviour
         }
 
         // Illusion logic
-        if (allowIllusionMovement && illusionSystem.TryGetIllusionTarget(direction, out Vector3 illusionTarget))
+        else if (allowIllusionMovement && illusionSystem.TryGetIllusionTarget(direction, out Vector3 illusionTarget))
         {
-            if (drawDebug) Debug.Log("✨ Illusion move allowed to " + illusionTarget);
-            finalTarget = illusionTarget;
-            return true;
+            Debug.Log("✨ Illusion move allowed to " + illusionTarget);
+            targetPos = illusionTarget;
+            return true; // Let Update() call StartCoroutine like normal move
         }
+
 
         if (drawDebug) Debug.Log("❌ Move blocked.");
         return false;
@@ -182,3 +183,5 @@ public class Movement : MonoBehaviour
         isMoving = false;
     }
 }
+
+
