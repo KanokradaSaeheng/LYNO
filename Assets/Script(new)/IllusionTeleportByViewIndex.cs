@@ -1,48 +1,42 @@
-// =============================
-// IllusionTeleportByViewIndex.cs (Teleport Triggers On Specific Direction)
-// =============================
 using UnityEngine;
-using System.Collections;
 
 public class IllusionTeleportByViewIndex : MonoBehaviour
 {
     [System.Serializable]
-    public class ViewTeleport
+    public class ViewTeleportEntry
     {
         public int viewIndex;
+        public string controlSide; // "Left", "Right", "Top", "Bottom"
         public Transform targetPosition;
-        public Vector3 direction; // Direction player must move to trigger
     }
 
-    [Header("Teleport Settings")]
-    public ViewTeleport[] viewTeleports;
+    [Header("Teleport Config")]
+    public ViewTeleportEntry[] teleportEntries;
     public string playerTag = "Player";
     public bool onlyOnce = true;
 
-    private bool hasTeleported = false;
     private bool isPlayerInZone = false;
     private Transform cachedPlayer;
-    private Vector3 requiredDirection;
+    private bool hasTeleported = false;
+    private string readyControlSide = "";
     private Vector3 teleportTarget;
-    private bool teleportReady = false;
+    private int currentViewIndex;
 
     private void OnTriggerEnter(Collider other)
     {
         if (!other.CompareTag(playerTag)) return;
         if (onlyOnce && hasTeleported) return;
 
-        int currentView = GetCurrentViewIndex();
-        if (currentView == -1) return;
+        cachedPlayer = other.transform;
+        currentViewIndex = GetCurrentViewIndex();
 
-        foreach (var teleport in viewTeleports)
+        foreach (var entry in teleportEntries)
         {
-            if (teleport.viewIndex == currentView && teleport.targetPosition != null)
+            if (entry.viewIndex == currentViewIndex)
             {
                 isPlayerInZone = true;
-                cachedPlayer = other.transform;
-                requiredDirection = teleport.direction.normalized;
-                teleportTarget = teleport.targetPosition.position;
-                teleportReady = true;
+                readyControlSide = entry.controlSide;
+                teleportTarget = entry.targetPosition.position;
                 return;
             }
         }
@@ -50,57 +44,76 @@ public class IllusionTeleportByViewIndex : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.CompareTag(playerTag))
-        {
-            ResetTeleportState();
-        }
+        if (!other.CompareTag(playerTag)) return;
+
+        isPlayerInZone = false;
+        cachedPlayer = null;
+        readyControlSide = "";
     }
 
-    public bool ShouldBlockDirection(Vector3 moveDir)
+    public bool ShouldBlockControl(int viewIndex, string controlSide)
     {
-        if (!teleportReady) return false;
-        return Vector3.Dot(moveDir.normalized, requiredDirection) > 0.9f;
-    }
+        if (!isPlayerInZone || hasTeleported) return false;
 
-    public bool TryTriggerTeleport(Vector3 moveDir)
-    {
-        if (!teleportReady) return false;
-
-        if (Vector3.Dot(moveDir.normalized, requiredDirection) > 0.9f)
+        foreach (var entry in teleportEntries)
         {
-            cachedPlayer.position = teleportTarget;
-            teleportReady = false;
-            isPlayerInZone = false;
-            hasTeleported = true;
-            return true;
+            if (entry.viewIndex == viewIndex && entry.controlSide == controlSide)
+            {
+                return true; // Don't prepare anything here
+            }
         }
 
         return false;
     }
 
-    private void ResetTeleportState()
+    public void TryTeleport(int viewIndex, string attemptedControlSide)
     {
-        isPlayerInZone = false;
-        teleportReady = false;
-        cachedPlayer = null;
+        if (!isPlayerInZone || hasTeleported || cachedPlayer == null) return;
+
+        foreach (var entry in teleportEntries)
+        {
+            if (entry.viewIndex == viewIndex && entry.controlSide == attemptedControlSide)
+            {
+                cachedPlayer.position = entry.targetPosition.position;
+                hasTeleported = true;
+                isPlayerInZone = false;
+                cachedPlayer = null;
+                return;
+            }
+        }
+    }
+
+
+    public void TryTeleport(string inputSide)
+    {
+        if (!isPlayerInZone || hasTeleported || cachedPlayer == null) return;
+
+        if (inputSide == readyControlSide)
+        {
+            cachedPlayer.position = teleportTarget;
+            hasTeleported = true;
+            isPlayerInZone = false;
+            cachedPlayer = null;
+            readyControlSide = "";
+        }
     }
 
     private int GetCurrentViewIndex()
     {
-        CameraFollow camFollow = Camera.main?.GetComponent<CameraFollow>();
-        return camFollow != null ? camFollow.currentViewIndex : -1;
+        CameraFollow cam = Camera.main?.GetComponent<CameraFollow>();
+        return cam != null ? cam.currentViewIndex : -1;
     }
 
 #if UNITY_EDITOR
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.yellow;
-        foreach (var t in viewTeleports)
+        foreach (var entry in teleportEntries)
         {
-            if (t.targetPosition != null)
+            if (entry.targetPosition != null)
             {
-                Gizmos.DrawLine(transform.position, t.targetPosition.position);
-                Gizmos.DrawSphere(t.targetPosition.position, 0.2f);
+                Gizmos.DrawLine(transform.position, entry.targetPosition.position);
+                Gizmos.DrawSphere(entry.targetPosition.position, 0.2f);
             }
         }
     }

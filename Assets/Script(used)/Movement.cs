@@ -1,5 +1,5 @@
 // =============================
-// Movement.cs (Supports Direction-Based Teleport Block)
+// Movement.cs (One touch = one move)
 // =============================
 using UnityEngine;
 using System.Collections;
@@ -16,33 +16,44 @@ public class Movement : MonoBehaviour
     public int active2DOffsetIndex;
 
     private bool isMoving = false;
-    private IllusionTeleportByViewIndex illusionTrigger;
+    private IllusionTeleportByViewIndex illusionSystem;
 
     void Start()
     {
-        illusionTrigger = FindObjectOfType<IllusionTeleportByViewIndex>();
+        illusionSystem = FindObjectOfType<IllusionTeleportByViewIndex>();
     }
 
     void Update()
     {
         if (isMoving) return;
 
-        Vector3 inputDir = GetTouchDirection();
-        if (inputDir == Vector3.zero) return;
+        // Make sure a new tap started
+        if (Input.touchCount == 0 || Input.GetTouch(0).phase != TouchPhase.Began)
+            return;
 
-        // Check if illusion teleport wants to override this direction
-        if (illusionTrigger != null && illusionTrigger.ShouldBlockDirection(inputDir))
+        Vector3 inputDir;
+        string controlSide;
+        GetTouchDirection(out inputDir, out controlSide);
+
+        if (inputDir == Vector3.zero || string.IsNullOrEmpty(controlSide)) return;
+
+        // Check if teleport should occur instead of movement
+        int currentView = cameraFollow != null ? cameraFollow.currentViewIndex : -1;
+        if (illusionSystem != null && illusionSystem.ShouldBlockControl(currentView, controlSide))
         {
-            if (illusionTrigger.TryTriggerTeleport(inputDir)) return;
+            illusionSystem.TryTeleport(currentView, controlSide);
+            return;
         }
+
 
         Vector3 nextPos = transform.position + inputDir * moveDistance;
         StartCoroutine(MoveToPosition(nextPos));
     }
 
-    Vector3 GetTouchDirection()
+    void GetTouchDirection(out Vector3 direction, out string controlSide)
     {
-        if (Input.touchCount == 0) return Vector3.zero;
+        direction = Vector3.zero;
+        controlSide = null;
 
         Vector2 touchPos = Input.GetTouch(0).position;
         float w = Screen.width;
@@ -55,14 +66,26 @@ public class Movement : MonoBehaviour
 
         if (is2DMode)
         {
-            return active2DOffsetIndex switch
+            switch (active2DOffsetIndex)
             {
-                0 => isLeft ? Vector3.back : isRight ? Vector3.forward : Vector3.zero,
-                1 => isLeft ? Vector3.left : isRight ? Vector3.right : Vector3.zero,
-                2 => isLeft ? Vector3.forward : isRight ? Vector3.back : Vector3.zero,
-                3 => isLeft ? Vector3.right : isRight ? Vector3.left : Vector3.zero,
-                _ => Vector3.zero
-            };
+                case 0:
+                    if (isLeft) { direction = Vector3.back; controlSide = "Left"; }
+                    else if (isRight) { direction = Vector3.forward; controlSide = "Right"; }
+                    break;
+                case 1:
+                    if (isLeft) { direction = Vector3.left; controlSide = "Left"; }
+                    else if (isRight) { direction = Vector3.right; controlSide = "Right"; }
+                    break;
+                case 2:
+                    if (isLeft) { direction = Vector3.forward; controlSide = "Left"; }
+                    else if (isRight) { direction = Vector3.back; controlSide = "Right"; }
+                    break;
+                case 3:
+                    if (isLeft) { direction = Vector3.right; controlSide = "Left"; }
+                    else if (isRight) { direction = Vector3.left; controlSide = "Right"; }
+                    break;
+            }
+            return;
         }
 
         float yRot = Camera.main.transform.eulerAngles.y;
@@ -80,12 +103,54 @@ public class Movement : MonoBehaviour
             }
         }
 
-        if (isLeft) return closest switch { 45f => Vector3.forward, 135f => Vector3.right, 225f => Vector3.back, 315f => Vector3.left, _ => Vector3.zero };
-        if (isRight) return closest switch { 45f => Vector3.back, 135f => Vector3.left, 225f => Vector3.forward, 315f => Vector3.right, _ => Vector3.zero };
-        if (isTop) return closest switch { 45f => Vector3.right, 135f => Vector3.back, 225f => Vector3.left, 315f => Vector3.forward, _ => Vector3.zero };
-        if (isBottom) return closest switch { 45f => Vector3.left, 135f => Vector3.forward, 225f => Vector3.right, 315f => Vector3.back, _ => Vector3.zero };
-
-        return Vector3.zero;
+        if (isLeft)
+        {
+            controlSide = "Left";
+            direction = closest switch
+            {
+                45f => Vector3.forward,
+                135f => Vector3.right,
+                225f => Vector3.back,
+                315f => Vector3.left,
+                _ => Vector3.zero
+            };
+        }
+        else if (isRight)
+        {
+            controlSide = "Right";
+            direction = closest switch
+            {
+                45f => Vector3.back,
+                135f => Vector3.left,
+                225f => Vector3.forward,
+                315f => Vector3.right,
+                _ => Vector3.zero
+            };
+        }
+        else if (isTop)
+        {
+            controlSide = "Top";
+            direction = closest switch
+            {
+                45f => Vector3.right,
+                135f => Vector3.back,
+                225f => Vector3.left,
+                315f => Vector3.forward,
+                _ => Vector3.zero
+            };
+        }
+        else if (isBottom)
+        {
+            controlSide = "Bottom";
+            direction = closest switch
+            {
+                45f => Vector3.left,
+                135f => Vector3.forward,
+                225f => Vector3.right,
+                315f => Vector3.back,
+                _ => Vector3.zero
+            };
+        }
     }
 
     IEnumerator MoveToPosition(Vector3 destination)
@@ -98,10 +163,5 @@ public class Movement : MonoBehaviour
         }
         transform.position = destination;
         isMoving = false;
-    }
-
-    public void SetMovementEnabled(bool enabled)
-    {
-        enabled = enabled;
     }
 }
