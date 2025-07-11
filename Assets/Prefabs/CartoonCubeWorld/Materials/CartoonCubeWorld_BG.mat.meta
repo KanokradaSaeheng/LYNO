@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 388b96e8d10e5b54785e7ae79d2196c7
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 170440
+  packageName: Cartoon Low Poly Cube World
+  packageVersion: 1.01
+  assetPath: Assets/CartoonCubeWorld/Materials/CartoonCubeWorld_BG.mat
+  uploadId: 561708
