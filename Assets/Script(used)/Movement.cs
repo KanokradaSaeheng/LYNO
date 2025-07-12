@@ -23,11 +23,10 @@ public class Movement : MonoBehaviour
         illusionSystem = FindObjectOfType<IllusionTeleportByViewIndex>();
     }
 
-    void Update()
+    private void Update()
     {
         if (isMoving) return;
 
-        // Make sure a new tap started
         if (Input.touchCount == 0 || Input.GetTouch(0).phase != TouchPhase.Began)
             return;
 
@@ -37,18 +36,19 @@ public class Movement : MonoBehaviour
 
         if (inputDir == Vector3.zero || string.IsNullOrEmpty(controlSide)) return;
 
-        // Check if teleport should occur instead of movement
         int currentView = cameraFollow != null ? cameraFollow.currentViewIndex : -1;
-        if (illusionSystem != null && illusionSystem.ShouldBlockControl(currentView, controlSide))
+
+        var activeZone = IllusionTeleportManager.Instance?.GetActiveTeleportZone();
+        if (activeZone != null && activeZone.ShouldBlockControl(currentView, controlSide))
         {
-            illusionSystem.TryTeleport(currentView, controlSide);
+            activeZone.TryTeleport(currentView, controlSide);
             return;
         }
-
 
         Vector3 nextPos = transform.position + inputDir * moveDistance;
         StartCoroutine(MoveToPosition(nextPos));
     }
+
 
     void GetTouchDirection(out Vector3 direction, out string controlSide)
     {

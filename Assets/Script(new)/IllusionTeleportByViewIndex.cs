@@ -22,6 +22,16 @@ public class IllusionTeleportByViewIndex : MonoBehaviour
     private Vector3 teleportTarget;
     private int currentViewIndex;
 
+    private void Start()
+    {
+        IllusionTeleportManager.Instance?.RegisterZone(this);
+    }
+
+    private void OnDestroy()
+    {
+        IllusionTeleportManager.Instance?.UnregisterZone(this);
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         if (!other.CompareTag(playerTag)) return;
@@ -58,9 +68,7 @@ public class IllusionTeleportByViewIndex : MonoBehaviour
         foreach (var entry in teleportEntries)
         {
             if (entry.viewIndex == viewIndex && entry.controlSide == controlSide)
-            {
-                return true; // Don't prepare anything here
-            }
+                return true;
         }
 
         return false;
@@ -83,20 +91,7 @@ public class IllusionTeleportByViewIndex : MonoBehaviour
         }
     }
 
-
-    public void TryTeleport(string inputSide)
-    {
-        if (!isPlayerInZone || hasTeleported || cachedPlayer == null) return;
-
-        if (inputSide == readyControlSide)
-        {
-            cachedPlayer.position = teleportTarget;
-            hasTeleported = true;
-            isPlayerInZone = false;
-            cachedPlayer = null;
-            readyControlSide = "";
-        }
-    }
+    public bool IsPlayerInZone() => isPlayerInZone;
 
     private int GetCurrentViewIndex()
     {
