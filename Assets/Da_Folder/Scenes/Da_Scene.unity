@@ -119,6 +119,72 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1001 &519510868
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 4327d48f8cfe06e468966ed125048fbc, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -12.2688675
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 4327d48f8cfe06e468966ed125048fbc, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 9.424843
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 4327d48f8cfe06e468966ed125048fbc, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 24.385876
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 4327d48f8cfe06e468966ed125048fbc, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 4327d48f8cfe06e468966ed125048fbc, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 4327d48f8cfe06e468966ed125048fbc, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 4327d48f8cfe06e468966ed125048fbc, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 4327d48f8cfe06e468966ed125048fbc, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 4327d48f8cfe06e468966ed125048fbc, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 4327d48f8cfe06e468966ed125048fbc, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -2389738502298646238, guid: 4327d48f8cfe06e468966ed125048fbc, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 9d4ab2a0994d06a4880eb6e0a36b29bd, type: 2}
+    - target: {fileID: 919132149155446097, guid: 4327d48f8cfe06e468966ed125048fbc, type: 3}
+      propertyPath: m_Name
+      value: Water
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects:
+    - {fileID: -8700617353114198275, guid: 4327d48f8cfe06e468966ed125048fbc, type: 3}
+    - {fileID: 65702495048144492, guid: 4327d48f8cfe06e468966ed125048fbc, type: 3}
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 4327d48f8cfe06e468966ed125048fbc, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1085732104}
+  m_SourcePrefab: {fileID: 100100000, guid: 4327d48f8cfe06e468966ed125048fbc, type: 3}
 --- !u!1001 &1085251159
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -180,6 +246,33 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: dd538821737cc1c40974b7318e38f63c, type: 3}
+--- !u!1 &1085732103 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 4327d48f8cfe06e468966ed125048fbc, type: 3}
+  m_PrefabInstance: {fileID: 519510868}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &1085732104
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1085732103}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: a3232fe9526e35b46b0bc76f47b6ce96, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &1280821952
 GameObject:
   m_ObjectHideFlags: 0
@@ -571,3 +664,4 @@ SceneRoots:
   - {fileID: 1280821956}
   - {fileID: 1085251159}
   - {fileID: 1606873522}
+  - {fileID: 519510868}
