@@ -1,5 +1,5 @@
 // =============================
-// TouchMoveAnimator.cs (One touch = one move, with idle/walk animation, updated)
+// Movement.cs (Updated: Walk animation plays only while moving)
 // =============================
 using UnityEngine;
 using System.Collections;
@@ -21,12 +21,11 @@ public class TouchMoveAnimator : MonoBehaviour
 
     void Start()
     {
-        illusionSystem = FindFirstObjectByType<IllusionTeleportByViewIndex>();
+        illusionSystem = Object.FindFirstObjectByType<IllusionTeleportByViewIndex>(); // Final deprecation fix
         animator = GetComponent<Animator>();
-        animator.Play("Idle");
     }
 
-    void Update()
+    private void Update()
     {
         if (isMoving) return;
 
@@ -40,9 +39,11 @@ public class TouchMoveAnimator : MonoBehaviour
         if (inputDir == Vector3.zero || string.IsNullOrEmpty(controlSide)) return;
 
         int currentView = cameraFollow != null ? cameraFollow.currentViewIndex : -1;
-        if (illusionSystem != null && illusionSystem.ShouldBlockControl(currentView, controlSide))
+
+        var activeZone = IllusionTeleportManager.Instance?.GetActiveTeleportZone();
+        if (activeZone != null && activeZone.ShouldBlockControl(currentView, controlSide))
         {
-            illusionSystem.TryTeleport(currentView, controlSide);
+            activeZone.TryTeleport(currentView, controlSide);
             return;
         }
 
@@ -156,16 +157,23 @@ public class TouchMoveAnimator : MonoBehaviour
     IEnumerator MoveToPosition(Vector3 destination)
     {
         isMoving = true;
-        animator.Play("Walk");
+        animator.SetBool("isWalking", true);
+
+        Vector3 direction = (destination - transform.position).normalized;
+        if (direction != Vector3.zero)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(direction);
+            transform.rotation = targetRotation;
+        }
 
         while (Vector3.Distance(transform.position, destination) > 0.01f)
         {
             transform.position = Vector3.MoveTowards(transform.position, destination, moveSpeed * Time.deltaTime);
             yield return null;
         }
-        transform.position = destination;
 
-        animator.Play("Idle");
+        transform.position = destination;
+        animator.SetBool("isWalking", false);
         isMoving = false;
     }
 }

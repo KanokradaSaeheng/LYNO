@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: d6a8246405f0d6347a3a6f6998577f99
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 287606
+  packageName: Location 3 Winter - Low Poly 3D Models Pack
+  packageVersion: 2.1
+  assetPath: Assets/ithappy/Location_3_Winter/Scripts/BlendShapeAnimator.cs
+  uploadId: 760369

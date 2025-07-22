@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: ee648e0b2e54b94468ac906f25571981
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 287606
+  packageName: Location 3 Winter - Low Poly 3D Models Pack
+  packageVersion: 2.1
+  assetPath: Assets/ithappy/Location_3_Winter/Scripts/Rnd_Animation.cs
+  uploadId: 760369
