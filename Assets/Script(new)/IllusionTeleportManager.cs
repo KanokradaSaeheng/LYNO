@@ -9,7 +9,9 @@ public class IllusionTeleportManager : MonoBehaviour
     void Awake()
     {
         Instance = this;
+        Debug.Log("🟢 IllusionTeleportManager is alive.");
     }
+
 
     public void RegisterZone(IllusionTeleportByViewIndex zone)
     {

@@ -1,33 +1,28 @@
 using UnityEngine;
+using System.Collections;
 
 public class IllusionTeleportByViewIndex : MonoBehaviour
 {
     [System.Serializable]
     public class ViewTeleportEntry
     {
-        public bool is2DEntry = false; // 🔄 This entry works in 2D mode
-        public int viewIndex; // Used as either 3D viewIndex or 2DIndex
-        public string controlSide; // "Left", "Right", "Top", "Bottom"
+        public bool is2DEntry = false;
+        public int viewIndex;
+        public string controlSide;
         public Transform targetPosition;
     }
-
 
     [Header("Teleport Config")]
     public ViewTeleportEntry[] teleportEntries;
     public string playerTag = "Player";
     public bool onlyOnce = true;
-    
-    [Header("2D Support")]
-    public bool is2DZone = false; // Enable for zones that work in 2D puzzles
-    public int required2DIndex = 0; // Match with Movement.cs.active2DOffsetIndex
 
+    [Header("2D Support")]
+    public bool is2DZone = false; // Tells the script which index to check
 
     private bool isPlayerInZone = false;
     private Transform cachedPlayer;
-   private bool hasTeleported = false;
-    private string readyControlSide = "";
-    private Vector3 teleportTarget;
-    private int currentViewIndex;
+    private bool hasTeleported = false;
 
     private void Start()
     {
@@ -45,19 +40,9 @@ public class IllusionTeleportByViewIndex : MonoBehaviour
         if (onlyOnce && hasTeleported) return;
 
         cachedPlayer = other.transform;
-        int indexToCheck = is2DZone ? GetCurrent2DIndex() : GetCurrentViewIndex();
+        isPlayerInZone = true;
 
-        foreach (var entry in teleportEntries)
-        {
-            if (entry.viewIndex == indexToCheck)
-            {
-                isPlayerInZone = true;
-                readyControlSide = entry.controlSide;
-                teleportTarget = entry.targetPosition.position;
-                return;
-            }
-        }
-
+        Debug.Log($"🟡 Player ENTERED teleport zone: {gameObject.name}");
     }
 
     private void OnTriggerExit(Collider other)
@@ -66,7 +51,8 @@ public class IllusionTeleportByViewIndex : MonoBehaviour
 
         isPlayerInZone = false;
         cachedPlayer = null;
-        readyControlSide = "";
+
+        Debug.Log($"⚪ Player EXITED teleport zone: {gameObject.name}");
     }
 
     public bool ShouldBlockControl(int viewIndex, string controlSide)
@@ -74,10 +60,18 @@ public class IllusionTeleportByViewIndex : MonoBehaviour
         if (!isPlayerInZone) return false;
         if (onlyOnce && hasTeleported) return false;
 
+        bool currentMode2D = DimensionManager.Is2DModeStatic;
+        int currentIndex = currentMode2D ? GetCurrent2DIndex() : GetCurrentViewIndex();
+
         foreach (var entry in teleportEntries)
         {
-            if (entry.viewIndex == (is2DZone ? GetCurrent2DIndex() : viewIndex) &&
-                entry.controlSide == controlSide) ;
+            if (entry.is2DEntry != currentMode2D) continue;
+
+            if (entry.viewIndex == currentIndex && entry.controlSide == controlSide)
+            {
+                Debug.Log($"🟢 Teleport condition met: [{(currentMode2D ? "2D" : "3D")}] Index={currentIndex}, Side={controlSide}");
+                return true;
+            }
         }
 
         return false;
@@ -88,10 +82,17 @@ public class IllusionTeleportByViewIndex : MonoBehaviour
     {
         if (!isPlayerInZone || cachedPlayer == null) return;
 
+        bool currentMode2D = DimensionManager.Is2DModeStatic;
+        int currentIndex = currentMode2D ? GetCurrent2DIndex() : viewIndex;
+
         foreach (var entry in teleportEntries)
         {
-            if (entry.viewIndex == viewIndex && entry.controlSide == attemptedControlSide)
+            if (entry.is2DEntry != currentMode2D) continue;
+
+            if (entry.viewIndex == currentIndex && entry.controlSide == attemptedControlSide)
             {
+                Debug.Log($"🚀 Teleporting to: {entry.targetPosition.position}");
+
                 cachedPlayer.position = entry.targetPosition.position;
 
                 if (onlyOnce)
@@ -101,11 +102,36 @@ public class IllusionTeleportByViewIndex : MonoBehaviour
                     cachedPlayer = null;
                 }
 
+                StartCoroutine(ForceRecheckZone());
                 return;
             }
         }
+
+        Debug.LogWarning("❌ No matching teleport entry found for ViewIndex=" + currentIndex + ", Side=" + attemptedControlSide);
     }
 
+
+    private IEnumerator ForceRecheckZone()
+    {
+        yield return null; // wait 1 frame
+
+        if (cachedPlayer == null)
+        {
+            cachedPlayer = GameObject.FindGameObjectWithTag(playerTag)?.transform;
+            if (cachedPlayer == null) yield break;
+        }
+
+        Collider[] overlapping = Physics.OverlapSphere(cachedPlayer.position, 0.1f);
+        foreach (var col in overlapping)
+        {
+            if (col.gameObject == gameObject)
+            {
+                Debug.Log("🔁 Force-retriggered OnTriggerEnter after teleport.");
+                OnTriggerEnter(col);
+                break;
+            }
+        }
+    }
 
     public bool IsPlayerInZone() => isPlayerInZone;
 
@@ -114,13 +140,12 @@ public class IllusionTeleportByViewIndex : MonoBehaviour
         CameraFollow cam = Camera.main?.GetComponent<CameraFollow>();
         return cam != null ? cam.currentViewIndex : -1;
     }
-    
+
     private int GetCurrent2DIndex()
     {
         Movement movement = GameObject.FindGameObjectWithTag(playerTag)?.GetComponent<Movement>();
         return movement != null ? movement.active2DOffsetIndex : -1;
     }
-
 
 #if UNITY_EDITOR
     private void OnDrawGizmos()
