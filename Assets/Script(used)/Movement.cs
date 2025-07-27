@@ -1,6 +1,4 @@
-// =============================
-// Movement.cs (One touch = one move)
-// =============================
+
 using UnityEngine;
 using System.Collections;
 

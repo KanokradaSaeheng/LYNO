@@ -17,9 +17,6 @@ public class IllusionTeleportByViewIndex : MonoBehaviour
     public string playerTag = "Player";
     public bool onlyOnce = true;
 
-    [Header("2D Support")]
-    public bool is2DZone = false; // Tells the script which index to check
-
     private bool isPlayerInZone = false;
     private Transform cachedPlayer;
     private bool hasTeleported = false;
@@ -60,6 +57,16 @@ public class IllusionTeleportByViewIndex : MonoBehaviour
         if (!isPlayerInZone) return false;
         if (onlyOnce && hasTeleported) return false;
 
+        // Extra: check grounded to prevent teleport while falling
+        if (cachedPlayer != null && cachedPlayer.TryGetComponent<Rigidbody>(out Rigidbody rb))
+        {
+            if (!IsGrounded(rb))
+            {
+                Debug.Log("⏸️ Player not grounded yet — delaying teleport trigger.");
+                return false;
+            }
+        }
+
         bool currentMode2D = DimensionManager.Is2DModeStatic;
         int currentIndex = currentMode2D ? GetCurrent2DIndex() : GetCurrentViewIndex();
 
@@ -76,7 +83,6 @@ public class IllusionTeleportByViewIndex : MonoBehaviour
 
         return false;
     }
-
 
     public void TryTeleport(int viewIndex, string attemptedControlSide)
     {
@@ -110,10 +116,15 @@ public class IllusionTeleportByViewIndex : MonoBehaviour
         Debug.LogWarning("❌ No matching teleport entry found for ViewIndex=" + currentIndex + ", Side=" + attemptedControlSide);
     }
 
+    private bool IsGrounded(Rigidbody rb)
+    {
+        // Allow teleport only when mostly still vertically
+        return Mathf.Abs(rb.velocity.y) < 0.01f;
+    }
 
     private IEnumerator ForceRecheckZone()
     {
-        yield return null; // wait 1 frame
+        yield return null;
 
         if (cachedPlayer == null)
         {
