@@ -4742,7 +4742,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d9b2ae4b3607c5241ac3684b3d3f53fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  target: {fileID: 0}
+  target: {fileID: 2134657641}
   cameraOffsets3D:
   - {x: 5, y: 5, z: 5}
   - {x: 5, y: 5, z: -5}
@@ -44556,7 +44556,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveDistance: 1
   moveSpeed: 5
-  cameraFollow: {fileID: 0}
+  cameraFollow: {fileID: 195179645}
   is2DMode: 0
   active2DOffsetIndex: 0
 --- !u!65 &2134657635
