@@ -1,6 +1,3 @@
-// =============================
-// Movement.cs (One touch = one move)
-// =============================
 using UnityEngine;
 using System.Collections;
 
@@ -17,10 +14,12 @@ public class Movement : MonoBehaviour
 
     private bool isMoving = false;
     private IllusionTeleportByViewIndex illusionSystem;
+    private Animator animator;
 
     void Start()
     {
         illusionSystem = FindObjectOfType<IllusionTeleportByViewIndex>();
+        animator = GetComponent<Animator>();
     }
 
     private void Update()
@@ -46,9 +45,8 @@ public class Movement : MonoBehaviour
         }
 
         Vector3 nextPos = transform.position + inputDir * moveDistance;
-        StartCoroutine(MoveToPosition(nextPos));
+        StartCoroutine(MoveToPosition(nextPos, inputDir));
     }
-
 
     void GetTouchDirection(out Vector3 direction, out string controlSide)
     {
@@ -153,15 +151,43 @@ public class Movement : MonoBehaviour
         }
     }
 
-    IEnumerator MoveToPosition(Vector3 destination)
+    IEnumerator MoveToPosition(Vector3 destination, Vector3 moveDirection)
     {
         isMoving = true;
+
+        if (moveDirection != Vector3.zero)
+        {
+            Vector3 flatDirection = new Vector3(moveDirection.x, 0f, moveDirection.z);
+            yield return StartCoroutine(RotateToDirection(flatDirection));
+        }
+
         while (Vector3.Distance(transform.position, destination) > 0.01f)
         {
             transform.position = Vector3.MoveTowards(transform.position, destination, moveSpeed * Time.deltaTime);
             yield return null;
         }
+
         transform.position = destination;
         isMoving = false;
+    }
+
+    IEnumerator RotateToDirection(Vector3 moveDir)
+    {
+        Quaternion targetRot = Quaternion.LookRotation(moveDir, Vector3.up);
+        float rotateSpeed = 10f;
+
+        if (animator != null)
+            animator.SetBool("IsTurning", true);
+
+        while (Quaternion.Angle(transform.rotation, targetRot) > 0.1f)
+        {
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.deltaTime * rotateSpeed);
+            yield return null;
+        }
+
+        transform.rotation = targetRot;
+
+        if (animator != null)
+            animator.SetBool("IsTurning", false);
     }
 }
