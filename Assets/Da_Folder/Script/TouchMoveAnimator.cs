@@ -1,4 +1,4 @@
-// =============================
+﻿// =============================
 // Movement.cs (Updated: Walk animation plays only while moving)
 // =============================
 using UnityEngine;
@@ -19,36 +19,56 @@ public class TouchMoveAnimator : MonoBehaviour
     private IllusionTeleportByViewIndex illusionSystem;
     private Animator animator;
 
+    // ✅ Tap vs Swipe Detection
+    private Vector2 touchStartPos;
+    private float touchStartTime;
+    public float swipeThreshold = 50f; // pixels
+    public float maxTapDuration = 0.2f; // seconds
+
     void Start()
     {
-        illusionSystem = Object.FindFirstObjectByType<IllusionTeleportByViewIndex>(); // Final deprecation fix
+        illusionSystem = Object.FindFirstObjectByType<IllusionTeleportByViewIndex>();
         animator = GetComponent<Animator>();
     }
 
     private void Update()
     {
-        if (isMoving) return;
-
-        if (Input.touchCount == 0 || Input.GetTouch(0).phase != TouchPhase.Began)
+        if (isMoving || Input.touchCount == 0)
             return;
 
-        Vector3 inputDir;
-        string controlSide;
-        GetTouchDirection(out inputDir, out controlSide);
+        Touch touch = Input.GetTouch(0);
 
-        if (inputDir == Vector3.zero || string.IsNullOrEmpty(controlSide)) return;
-
-        int currentView = cameraFollow != null ? cameraFollow.currentViewIndex : -1;
-
-        var activeZone = IllusionTeleportManager.Instance?.GetActiveTeleportZone();
-        if (activeZone != null && activeZone.ShouldBlockControl(currentView, controlSide))
+        if (touch.phase == TouchPhase.Began)
         {
-            activeZone.TryTeleport(currentView, controlSide);
-            return;
+            touchStartPos = touch.position;
+            touchStartTime = Time.time;
         }
+        else if (touch.phase == TouchPhase.Ended)
+        {
+            float duration = Time.time - touchStartTime;
+            float distance = (touch.position - touchStartPos).magnitude;
 
-        Vector3 nextPos = transform.position + inputDir * moveDistance;
-        StartCoroutine(MoveToPosition(nextPos));
+            if (duration <= maxTapDuration && distance < swipeThreshold)
+            {
+                Vector3 inputDir;
+                string controlSide;
+                GetTouchDirection(out inputDir, out controlSide);
+
+                if (inputDir == Vector3.zero || string.IsNullOrEmpty(controlSide)) return;
+
+                int currentView = cameraFollow != null ? cameraFollow.currentViewIndex : -1;
+
+                var activeZone = IllusionTeleportManager.Instance?.GetActiveTeleportZone();
+                if (activeZone != null && activeZone.ShouldBlockControl(currentView, controlSide))
+                {
+                    activeZone.TryTeleport(currentView, controlSide);
+                    return;
+                }
+
+                Vector3 nextPos = transform.position + inputDir * moveDistance;
+                StartCoroutine(MoveToPosition(nextPos, inputDir));
+            }
+        }
     }
 
     void GetTouchDirection(out Vector3 direction, out string controlSide)
@@ -154,16 +174,14 @@ public class TouchMoveAnimator : MonoBehaviour
         }
     }
 
-    IEnumerator MoveToPosition(Vector3 destination)
+    IEnumerator MoveToPosition(Vector3 destination, Vector3 moveDirection)
     {
         isMoving = true;
-        animator.SetBool("isWalking", true);
 
-        Vector3 direction = (destination - transform.position).normalized;
-        if (direction != Vector3.zero)
+        if (moveDirection != Vector3.zero)
         {
-            Quaternion targetRotation = Quaternion.LookRotation(direction);
-            transform.rotation = targetRotation;
+            Vector3 flatDirection = new Vector3(moveDirection.x, 0f, moveDirection.z);
+            yield return StartCoroutine(RotateToDirection(flatDirection));
         }
 
         while (Vector3.Distance(transform.position, destination) > 0.01f)
@@ -173,7 +191,26 @@ public class TouchMoveAnimator : MonoBehaviour
         }
 
         transform.position = destination;
-        animator.SetBool("isWalking", false);
         isMoving = false;
+    }
+
+    IEnumerator RotateToDirection(Vector3 moveDir)
+    {
+        Quaternion targetRot = Quaternion.LookRotation(moveDir, Vector3.up);
+        float rotateSpeed = 10f;
+
+        if (animator != null)
+            animator.SetBool("IsTurning", true);
+
+        while (Quaternion.Angle(transform.rotation, targetRot) > 0.1f)
+        {
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.deltaTime * rotateSpeed);
+            yield return null;
+        }
+
+        transform.rotation = targetRot;
+
+        if (animator != null)
+            animator.SetBool("IsTurning", false);
     }
 }
