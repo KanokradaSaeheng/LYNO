@@ -273,6 +273,58 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &575027210
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 575027212}
+  - component: {fileID: 575027213}
+  m_Layer: 0
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &575027212
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 575027210}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1818.974, y: 761.8575, z: 7.337059}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &575027213
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 575027210}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 442b384da112f804c9026e602887df6b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  conversation:
+  - speakerName: Water
+    dialogBox: {fileID: 898397771}
+    sentence: Hello
+  - speakerName: 
+    dialogBox: {fileID: 0}
+    sentence: 
+  typingSpeed: 0.05
 --- !u!1 &784540818
 GameObject:
   m_ObjectHideFlags: 0
@@ -451,7 +503,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Never gonna give you up
+  m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 48ac42b67299ca540aa8df8d4cc65f43, type: 2}
   m_sharedMaterial: {fileID: -8979259350461408690, guid: 48ac42b67299ca540aa8df8d4cc65f43, type: 2}
@@ -958,3 +1010,4 @@ SceneRoots:
   - {fileID: 784540820}
   - {fileID: 1844808632}
   - {fileID: 532551288}
+  - {fileID: 575027212}
