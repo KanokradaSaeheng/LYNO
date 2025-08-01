@@ -119,7 +119,7 @@ public class IllusionTeleportByViewIndex : MonoBehaviour
     private bool IsGrounded(Rigidbody rb)
     {
         // Allow teleport only when mostly still vertically
-        return Mathf.Abs(rb.velocity.y) < 0.01f;
+        return Mathf.Abs(rb.linearVelocity.y) < 0.01f;
     }
 
     private IEnumerator ForceRecheckZone()

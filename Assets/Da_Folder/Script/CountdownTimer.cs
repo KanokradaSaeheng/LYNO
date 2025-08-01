@@ -3,8 +3,9 @@ using TMPro;
 using UnityEngine.UI;
 using MaskTransitions; // Your transition manager
 using System.Collections;
+using Unity.VisualScripting;
 
-public class CountdownTimer : MonoBehaviour
+public class CountdownTimer : MonoSingleton1<CountdownTimer>
 {
     [Header("UI Elements")]
     public TextMeshProUGUI timerText;
@@ -101,5 +102,9 @@ public class CountdownTimer : MonoBehaviour
         }
 
         warningImage.transform.localPosition = originalPos;
+    }
+    public void TakeDamage(float damage)
+    {
+        remainingTime -= damage;
     }
 }

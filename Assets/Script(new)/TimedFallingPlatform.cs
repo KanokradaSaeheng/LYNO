@@ -64,7 +64,7 @@ public class TimedFallingPlatform : MonoBehaviour
         // Reset platform
         if (rb != null)
         {
-            rb.velocity = Vector3.zero;
+            rb.linearVelocity = Vector3.zero;
             rb.angularVelocity = Vector3.zero;
             rb.isKinematic = true;
         }

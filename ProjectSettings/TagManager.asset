@@ -7,6 +7,9 @@ TagManager:
   - Platform
   - Connector
   - LevelEnd
+  - Item
+  - Door
+  - FxTemporaire
   layers:
   - Default
   - TransparentFX
@@ -15,8 +18,8 @@ TagManager:
   - Water
   - UI
   - Platform
-  - 
-  - 
+  - Ground
+  - Player
   - 
   - 
   - 
