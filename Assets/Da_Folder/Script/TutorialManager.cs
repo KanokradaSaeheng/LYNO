@@ -12,6 +12,10 @@ public class TutorialManager : MonoBehaviour
     private float doubleTapTime = 0.3f;
     private float lastTapTime = 0f;
 
+    // For improved swipe detection
+    private Vector2 swipeStartPos;
+    private bool swipeInProgress = false;
+
     private void Start()
     {
         ShowStep(0);
@@ -28,7 +32,7 @@ public class TutorialManager : MonoBehaviour
                 }
                 break;
 
-            case 1: // Detect swipe on left or right side only
+            case 1: // Detect swipe on left or right half only
                 if (DetectSwipeOnSides())
                 {
                     NextTutorial();
@@ -80,22 +84,31 @@ public class TutorialManager : MonoBehaviour
             Touch touch = Input.GetTouch(0);
             float screenWidth = Screen.width;
 
-            // Check if touch is on left or right half
-            if (touch.position.x < screenWidth * 0.5f || touch.position.x > screenWidth * 0.5f)
+            // Only consider touches starting on left or right half
+            if (touch.phase == TouchPhase.Began)
             {
-                if (touch.phase == TouchPhase.Began)
+                if (touch.position.x < screenWidth * 0.5f || touch.position.x > screenWidth * 0.5f)
                 {
-                    lastTouchPosition = touch.position;
+                    swipeStartPos = touch.position;
+                    swipeInProgress = true;
                 }
-                else if (touch.phase == TouchPhase.Moved)
+            }
+            else if (touch.phase == TouchPhase.Ended && swipeInProgress)
+            {
+                Vector2 swipeEndPos = touch.position;
+                Vector2 delta = swipeEndPos - swipeStartPos;
+
+                swipeInProgress = false;
+
+                // Check horizontal swipe: distance over threshold & mostly horizontal
+                if (Mathf.Abs(delta.x) > 50f && Mathf.Abs(delta.x) > Mathf.Abs(delta.y))
                 {
-                    Vector2 delta = touch.position - lastTouchPosition;
-                    // Check horizontal swipe (left or right)
-                    if (Mathf.Abs(delta.x) > 50f && Mathf.Abs(delta.x) > Mathf.Abs(delta.y))
-                    {
-                        return true;
-                    }
+                    return true;
                 }
+            }
+            else if (touch.phase == TouchPhase.Canceled)
+            {
+                swipeInProgress = false;
             }
         }
         return false;
