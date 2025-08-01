@@ -16,7 +16,7 @@ public class ShowOverlayScene : MonoBehaviour
 
     public void OnButtonClick()
     {
-        // Hide all overlays under the parent
+        // Hide all overlays first
         if (overlayParent != null)
         {
             foreach (Transform child in overlayParent)
@@ -25,16 +25,36 @@ public class ShowOverlayScene : MonoBehaviour
             }
         }
 
-        // Show selected overlay
+        bool isOverlayActive = overlayPanel != null && overlayPanel.activeSelf;
+
         if (overlayPanel != null)
         {
-            overlayPanel.SetActive(true);
+            if (isOverlayActive)
+            {
+                // Overlay is visible, so hide it and unpause
+                overlayPanel.SetActive(false);
+                if (backgroundDimmer != null)
+                    backgroundDimmer.SetActive(false);
 
-            if (backgroundDimmer != null)
-                backgroundDimmer.SetActive(true);
+                if (pauseGame)
+                {
+                    Time.timeScale = 1f;
+                    AudioListener.pause = false;
+                }
+            }
+            else
+            {
+                // Overlay hidden, so show it and pause
+                overlayPanel.SetActive(true);
+                if (backgroundDimmer != null)
+                    backgroundDimmer.SetActive(true);
 
-            if (pauseGame)
-                Time.timeScale = 0f;
+                if (pauseGame)
+                {
+                    Time.timeScale = 0f;
+                    AudioListener.pause = true;
+                }
+            }
         }
         else
         {

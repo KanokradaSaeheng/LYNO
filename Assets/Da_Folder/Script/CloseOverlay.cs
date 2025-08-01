@@ -30,6 +30,7 @@ public class CloseOverlay : MonoBehaviour
         if (unpauseGame)
         {
             Time.timeScale = 1f;
+            AudioListener.pause = false;  // <-- Add this line
         }
     }
 }

@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Platform
   - Connector
+  - LevelEnd
   layers:
   - Default
   - TransparentFX

@@ -1,28 +1,44 @@
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using MaskTransitions; // Your transition manager
+using System.Collections;
 
 public class CountdownTimer : MonoBehaviour
 {
+    [Header("UI Elements")]
     public TextMeshProUGUI timerText;
     public Slider energyBar;
-    public GameObject loseOverlay;
-    public float totalTime = 120f; // total countdown time in seconds, set in Inspector
+    public GameObject warningImage;
+
+    [Header("Timer Settings")]
+    public float totalTime = 120f;
+
+    [Header("Transition Settings")]
+    public string nextSceneName;
+    public float transitionTime = 1.5f;
+
+    [Header("Audio")]
+    public AudioSource warningSound; // <-- Assign in inspector
 
     private float remainingTime;
     private bool isCounting = true;
+    private bool hasTriggered = false;
+    private bool isWarningActive = false;
 
     void Start()
     {
         remainingTime = totalTime;
-        loseOverlay.SetActive(false);
         UpdateTimerDisplay();
         UpdateEnergyBar();
+
+        if (warningImage != null)
+            warningImage.SetActive(false);
     }
 
     void Update()
     {
-        if (!isCounting) return;
+        if (!isCounting || hasTriggered) return;
 
         if (remainingTime > 0)
         {
@@ -32,12 +48,16 @@ public class CountdownTimer : MonoBehaviour
 
             UpdateTimerDisplay();
             UpdateEnergyBar();
+
+            if (!isWarningActive && remainingTime <= 10f && remainingTime > 0f)
+            {
+                ActivateWarning();
+            }
         }
         else
         {
-            isCounting = false;
-            loseOverlay.SetActive(true);
-            Time.timeScale = 0f;
+            hasTriggered = true;
+            TransitionManager.Instance.LoadLevel(nextSceneName);
         }
     }
 
@@ -53,4 +73,33 @@ public class CountdownTimer : MonoBehaviour
         energyBar.value = (remainingTime / totalTime) * 100f;
     }
 
+    void ActivateWarning()
+    {
+        isWarningActive = true;
+
+        if (warningImage != null)
+        {
+            warningImage.SetActive(true);
+            StartCoroutine(VibrateWarning());
+        }
+
+        if (warningSound != null)
+        {
+            warningSound.Play();
+        }
+    }
+
+    IEnumerator VibrateWarning()
+    {
+        Vector3 originalPos = warningImage.transform.localPosition;
+
+        while (remainingTime > 0)
+        {
+            float shakeAmount = 5f;
+            warningImage.transform.localPosition = originalPos + (Vector3)Random.insideUnitCircle * shakeAmount;
+            yield return new WaitForSeconds(0.05f);
+        }
+
+        warningImage.transform.localPosition = originalPos;
+    }
 }

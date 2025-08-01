@@ -12,8 +12,23 @@ EditorBuildSettings:
     path: Assets/Da_Folder/Scenes/cutscene1.unity
     guid: e419b143cb74f2e48bad07e6c35aa07c
   - enabled: 1
-    path: Assets/Da_Folder/Scenes/Decor.unity
+    path: Assets/Da_Folder/Scenes/Tutorial.unity
     guid: abadb67165ba0c148b5c5740755b40bf
+  - enabled: 1
+    path: Assets/Da_Folder/Scenes/Win.unity
+    guid: 4326737cba6407646a615c209376501b
+  - enabled: 1
+    path: Assets/Da_Folder/Scenes/GameOver.unity
+    guid: 2887112c9871c384dbb18658d9354de2
+  - enabled: 1
+    path: Assets/Da_Folder/Scenes/cutscene2.unity
+    guid: b04e8d2fc2450e74f84070fc14389650
+  - enabled: 1
+    path: Assets/Da_Folder/Scenes/Level-2.unity
+    guid: cbd20a3a6ef2f0f45a562b870e90acd5
+  - enabled: 1
+    path: Assets/Da_Folder/Scenes/cutscene3.unity
+    guid: ac5b454dd7c76a64c9980a50637df8f0
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0

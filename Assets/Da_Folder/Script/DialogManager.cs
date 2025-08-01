@@ -8,34 +8,52 @@ public class DialogManager : MonoBehaviour
     [System.Serializable]
     public class DialogLine
     {
-        public string speakerName;
-        public TextMeshProUGUI dialogBox;
-        public string sentence;
+        public RectTransform boxTransform;      // RectTransform of the box (UI Panel)
+        public TextMeshProUGUI dialogText;      // TMP text inside the box
+        public string sentence;                 // The dialog sentence
     }
 
     public List<DialogLine> conversation = new List<DialogLine>();
-    public float typingSpeed = 0.05f;
+    public float typingSpeed = 0.04f;
+    public float slideSpeed = 1000f;           // pixels/second
 
     private int currentIndex = 0;
     private bool isTyping = false;
     private bool lineFinished = false;
 
-    private TextMeshProUGUI currentBox;
+    private RectTransform currentBox = null;
+    private RectTransform previousBox = null;
+
+    private bool conversationActive = false;
+
+    public Vector2 onScreenPosition = new Vector2(0, -200);    // Where the box should appear
+    public Vector2 offScreenLeft = new Vector2(-1500, -200);   // Off-screen left
+    public Vector2 offScreenRight = new Vector2(1500, -200);   // Off-screen right
 
     public void StartConversation()
     {
         currentIndex = 0;
+        conversationActive = true;
+
+        // Move all boxes off-screen at start
+        foreach (var line in conversation)
+        {
+            line.boxTransform.anchoredPosition = offScreenRight;
+        }
+
         ShowNextLine();
     }
 
     void Update()
     {
-        if (Input.GetMouseButtonDown(0) && currentBox != null)
+        if (!conversationActive) return;
+
+        if (Input.GetMouseButtonDown(0))
         {
             if (isTyping)
             {
                 StopAllCoroutines();
-                currentBox.text = conversation[currentIndex].sentence;
+                conversation[currentIndex].dialogText.text = conversation[currentIndex].sentence;
                 isTyping = false;
                 lineFinished = true;
             }
@@ -56,25 +74,32 @@ public class DialogManager : MonoBehaviour
 
     void ShowNextLine()
     {
-        // Hide previous box if switching
-        if (currentBox != null && conversation[currentIndex].dialogBox != currentBox)
-            currentBox.transform.parent.gameObject.SetActive(false); // Assumes text is inside a box
+        DialogLine line = conversation[currentIndex];
+        previousBox = currentBox;
+        currentBox = line.boxTransform;
 
-        currentBox = conversation[currentIndex].dialogBox;
-        currentBox.transform.parent.gameObject.SetActive(true); // Show new box
+        // Slide out previous box if speaker changed
+        if (previousBox != null && previousBox != currentBox)
+        {
+            StartCoroutine(SlideOut(previousBox));
+        }
 
-        StartCoroutine(TypeLine(conversation[currentIndex].sentence));
+        // Slide in new box
+        StartCoroutine(SlideIn(currentBox));
+
+        // Type the text
+        StartCoroutine(TypeLine(line));
     }
 
-    IEnumerator TypeLine(string line)
+    IEnumerator TypeLine(DialogLine line)
     {
         isTyping = true;
         lineFinished = false;
-        currentBox.text = "";
+        line.dialogText.text = "";
 
-        foreach (char c in line.ToCharArray())
+        foreach (char c in line.sentence.ToCharArray())
         {
-            currentBox.text += c;
+            line.dialogText.text += c;
             yield return new WaitForSeconds(typingSpeed);
         }
 
@@ -82,10 +107,35 @@ public class DialogManager : MonoBehaviour
         lineFinished = true;
     }
 
+    IEnumerator SlideIn(RectTransform box)
+    {
+        while (Vector2.Distance(box.anchoredPosition, onScreenPosition) > 1f)
+        {
+            box.anchoredPosition = Vector2.MoveTowards(box.anchoredPosition, onScreenPosition, slideSpeed * Time.deltaTime);
+            yield return null;
+        }
+        box.anchoredPosition = onScreenPosition;
+    }
+
+    IEnumerator SlideOut(RectTransform box)
+    {
+        while (Vector2.Distance(box.anchoredPosition, offScreenLeft) > 1f)
+        {
+            box.anchoredPosition = Vector2.MoveTowards(box.anchoredPosition, offScreenLeft, slideSpeed * Time.deltaTime);
+            yield return null;
+        }
+        box.anchoredPosition = offScreenLeft;
+    }
+
     void EndConversation()
     {
         if (currentBox != null)
-            currentBox.transform.parent.gameObject.SetActive(false);
+        {
+            StartCoroutine(SlideOut(currentBox));
+        }
+
         currentBox = null;
+        previousBox = null;
+        conversationActive = false;
     }
 }
