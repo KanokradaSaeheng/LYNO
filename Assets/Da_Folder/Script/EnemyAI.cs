@@ -30,9 +30,6 @@ public class EnemyAI : MonoBehaviour
     public GameObject hitEffect;
     public GameObject deathEffect;
 
-    [Header("Animation")]
-    public Animator animator;
-
     private NavMeshAgent agent;
     private float lastAttackTime = -999f;
 
@@ -62,15 +59,15 @@ public class EnemyAI : MonoBehaviour
 
     void Roam()
     {
-        animator.SetTrigger("Walk");
         agent.isStopped = true;
+        // No animation
     }
 
     void ChasePlayer()
     {
         agent.isStopped = false;
         agent.SetDestination(player.position);
-        animator.SetTrigger("Walk");
+        // No animation
     }
 
     void TryAttackPlayer()
@@ -79,7 +76,7 @@ public class EnemyAI : MonoBehaviour
 
         agent.isStopped = true;
         transform.LookAt(player);
-        animator.SetTrigger("Attack");
+        // No animation
 
         if (attackClip != null)
             AudioSource.PlayClipAtPoint(attackClip, transform.position);

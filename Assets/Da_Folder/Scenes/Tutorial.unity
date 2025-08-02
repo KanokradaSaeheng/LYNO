@@ -14894,6 +14894,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Rock_01
       objectReference: {fileID: 0}
+    - target: {fileID: 5983675981615481979, guid: 45f60b39ee4057b4a8a7863c43d13056, type: 3}
+      propertyPath: m_Layer
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 7110293473449228235, guid: 45f60b39ee4057b4a8a7863c43d13056, type: 3}
       propertyPath: m_Enabled
       value: 1
@@ -177981,6 +177985,11 @@ MonoBehaviour:
   cameraFollow: {fileID: 1930058002}
   is2DMode: 0
   active2DOffsetIndex: 0
+  obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 1024
+  checkDistance: 1
+  checkBoxSize: 0.4
 --- !u!65 &1674951865
 BoxCollider:
   m_ObjectHideFlags: 0
