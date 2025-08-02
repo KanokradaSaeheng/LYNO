@@ -9184,11 +9184,11 @@ MonoBehaviour:
     controlSide: Right
     targetPosition: {fileID: 693484527}
   - is2DEntry: 0
-    viewIndex: 1
+    viewIndex: 3
     controlSide: Top
     targetPosition: {fileID: 888055304}
   - is2DEntry: 0
-    viewIndex: 3
+    viewIndex: 1
     controlSide: Bottom
     targetPosition: {fileID: 1208388839}
   playerTag: Player
@@ -15446,15 +15446,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   teleportEntries:
   - is2DEntry: 0
-    viewIndex: 0
+    viewIndex: 2
     controlSide: Bottom
     targetPosition: {fileID: 1535570003}
   - is2DEntry: 0
-    viewIndex: 2
+    viewIndex: 0
     controlSide: Right
     targetPosition: {fileID: 1714740793}
   - is2DEntry: 0
-    viewIndex: 1
+    viewIndex: 3
     controlSide: Bottom
     targetPosition: {fileID: 665555560}
   playerTag: Player
@@ -23119,9 +23119,9 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_Size: {x: 0.75, y: 1, z: 0.75}
   m_Center: {x: 0, y: 0, z: 0}
@@ -24746,11 +24746,11 @@ MonoBehaviour:
     controlSide: Top
     targetPosition: {fileID: 846838729}
   - is2DEntry: 0
-    viewIndex: 3
+    viewIndex: 1
     controlSide: Left
     targetPosition: {fileID: 1627962239}
   - is2DEntry: 0
-    viewIndex: 1
+    viewIndex: 3
     controlSide: Right
     targetPosition: {fileID: 193916348}
   playerTag: Player
@@ -29590,7 +29590,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   teleportEntries:
   - is2DEntry: 0
-    viewIndex: 0
+    viewIndex: 2
     controlSide: Top
     targetPosition: {fileID: 888055304}
   - is2DEntry: 0
@@ -29598,7 +29598,7 @@ MonoBehaviour:
     controlSide: Right
     targetPosition: {fileID: 1227727369}
   - is2DEntry: 0
-    viewIndex: 2
+    viewIndex: 0
     controlSide: Bottom
     targetPosition: {fileID: 1208388839}
   playerTag: Player
@@ -31275,11 +31275,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   teleportEntries:
   - is2DEntry: 0
-    viewIndex: 3
+    viewIndex: 1
     controlSide: Right
     targetPosition: {fileID: 1271132833}
   - is2DEntry: 0
-    viewIndex: 3
+    viewIndex: 1
     controlSide: Bottom
     targetPosition: {fileID: 846966688}
   playerTag: Player
@@ -34120,20 +34120,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   teleportEntries:
   - is2DEntry: 0
-    viewIndex: 0
+    viewIndex: 2
     controlSide: Right
     targetPosition: {fileID: 1208388839}
   - is2DEntry: 0
-    viewIndex: 2
+    viewIndex: 0
     controlSide: Left
     targetPosition: {fileID: 888055304}
   - is2DEntry: 0
-    viewIndex: 1
+    viewIndex: 3
     controlSide: Bottom
-    targetPosition: {fileID: 757514815}
-  - is2DEntry: 0
-    viewIndex: 1
-    controlSide: Right
     targetPosition: {fileID: 757514815}
   playerTag: Player
   onlyOnce: 0
