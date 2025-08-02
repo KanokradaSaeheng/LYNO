@@ -42,7 +42,8 @@ public class BridgeTrigger : MonoBehaviour
         if (bridgePrefab != null && bridgeSpawnPoint != null)
         {
             Instantiate(bridgePrefab, bridgeSpawnPoint.position, bridgeSpawnPoint.rotation);
-            Debug.Log("🌉 Bridge spawned at " + bridgeSpawnPoint.position);
+            Debug.Log("" +
+                      "Bridge spawned at " + bridgeSpawnPoint.position);
         }
 
         // Replace light
