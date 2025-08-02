@@ -57,7 +57,6 @@ public class IllusionTeleportByViewIndex : MonoBehaviour
         if (!isPlayerInZone) return false;
         if (onlyOnce && hasTeleported) return false;
 
-        // Extra: check grounded to prevent teleport while falling
         if (cachedPlayer != null && cachedPlayer.TryGetComponent<Rigidbody>(out Rigidbody rb))
         {
             if (!IsGrounded(rb))
@@ -84,6 +83,8 @@ public class IllusionTeleportByViewIndex : MonoBehaviour
         return false;
     }
 
+    // Same top, no change in variables...
+
     public void TryTeleport(int viewIndex, string attemptedControlSide)
     {
         if (!isPlayerInZone || cachedPlayer == null) return;
@@ -99,13 +100,25 @@ public class IllusionTeleportByViewIndex : MonoBehaviour
             {
                 Debug.Log($"🚀 Teleporting to: {entry.targetPosition.position}");
 
-                cachedPlayer.position = entry.targetPosition.position;
+                if (cachedPlayer.TryGetComponent<Movement>(out Movement moveScript))
+                {
+                    moveScript.TeleportTo(entry.targetPosition.position);
+                }
+                else
+                {
+                    Debug.LogWarning("❌ No Movement script found on player!");
+                    cachedPlayer.position = entry.targetPosition.position;
+                }
 
                 if (onlyOnce)
                 {
                     hasTeleported = true;
                     isPlayerInZone = false;
                     cachedPlayer = null;
+                }
+                else
+                {
+                    StartCoroutine(DisableZoneTemporarily()); // prevents back-forth
                 }
 
                 StartCoroutine(ForceRecheckZone());
@@ -116,10 +129,17 @@ public class IllusionTeleportByViewIndex : MonoBehaviour
         Debug.LogWarning("❌ No matching teleport entry found for ViewIndex=" + currentIndex + ", Side=" + attemptedControlSide);
     }
 
+    private IEnumerator DisableZoneTemporarily()
+    {
+        isPlayerInZone = false;
+        yield return new WaitForSeconds(0.3f);
+        isPlayerInZone = true;
+    }
+
+
     private bool IsGrounded(Rigidbody rb)
     {
-        // Allow teleport only when mostly still vertically
-        return Mathf.Abs(rb.linearVelocity.y) < 0.01f;
+        return Mathf.Abs(rb.velocity.y) < 0.01f;
     }
 
     private IEnumerator ForceRecheckZone()
