@@ -790,7 +790,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e5275aca9beb324a8da4b5b9ea383c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sceneToLoadName: cutscene1
+  sceneToLoadName: cutscene2
   totalTransitionTime: 2
 --- !u!4 &631092191
 Transform:
