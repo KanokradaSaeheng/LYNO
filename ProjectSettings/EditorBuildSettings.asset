@@ -29,6 +29,12 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Da_Folder/Scenes/cutscene3.unity
     guid: ac5b454dd7c76a64c9980a50637df8f0
+  - enabled: 1
+    path: Assets/Da_Folder/Scenes/Village.unity
+    guid: 857b731eed7190a45b607c0f42004f60
+  - enabled: 1
+    path: Assets/Da_Folder/Scenes/Credit.unity
+    guid: 4239ea4e24495be4c9a35250f0c2c731
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0
