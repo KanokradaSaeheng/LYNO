@@ -27,6 +27,9 @@ EditorBuildSettings:
     path: Assets/Da_Folder/Scenes/Level-2.unity
     guid: cbd20a3a6ef2f0f45a562b870e90acd5
   - enabled: 1
+    path: Assets/Da_Folder/Scenes/Die.unity
+    guid: d5aadf35f67e5b140b8047ca946a49b6
+  - enabled: 1
     path: Assets/Da_Folder/Scenes/cutscene3.unity
     guid: ac5b454dd7c76a64c9980a50637df8f0
   - enabled: 1
