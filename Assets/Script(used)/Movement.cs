@@ -15,6 +15,11 @@ public class Movement : MonoBehaviour
     public bool is2DMode = false;
     public int active2DOffsetIndex;
 
+    [Header("Collision Check")]
+    public LayerMask obstacleLayer;
+    public float checkDistance = 1f;
+    public float checkBoxSize = 0.4f;
+
     private bool isMoving = false;
     private IllusionTeleportByViewIndex illusionSystem;
     private Animator animator;
@@ -57,11 +62,31 @@ public class Movement : MonoBehaviour
                 controlSide = controlSide,
                 zone = activeZone
             };
-            // Do NOT return — allow rotation & movement to process
+            // Continue to rotate and evaluate move
+        }
+
+        if (IsBlocked(inputDir))
+        {
+            Debug.Log("⛔ Blocked! Movement cancelled.");
+            return;
         }
 
         Vector3 nextPos = transform.position + inputDir * moveDistance;
         StartCoroutine(MoveToPosition(nextPos, inputDir));
+    }
+
+    private bool IsBlocked(Vector3 direction)
+    {
+        Vector3 origin = transform.position + Vector3.up * 0.5f;
+        Vector3 halfExtents = Vector3.one * checkBoxSize * 0.5f;
+
+        bool hit = Physics.BoxCast(origin, halfExtents, direction.normalized, Quaternion.identity, checkDistance, obstacleLayer);
+
+#if UNITY_EDITOR
+        Debug.DrawRay(origin, direction.normalized * checkDistance, hit ? Color.red : Color.green, 0.5f);
+#endif
+
+        return hit;
     }
 
     void GetTouchDirection(out Vector3 direction, out string controlSide)
@@ -177,7 +202,6 @@ public class Movement : MonoBehaviour
             yield return StartCoroutine(RotateToDirection(flatDirection));
         }
 
-        // Check for teleport trigger after rotation
         if (pendingTeleport != null)
         {
             var data = pendingTeleport.Value;
@@ -223,7 +247,7 @@ public class Movement : MonoBehaviour
 
     public void TeleportTo(Vector3 destination)
     {
-        StopAllCoroutines(); // force override current move
+        StopAllCoroutines();
         StartCoroutine(TeleportAsSmoothMove(destination));
     }
 
