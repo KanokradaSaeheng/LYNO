@@ -29196,7 +29196,7 @@ MonoBehaviour:
   timerText: {fileID: 697158928}
   energyBar: {fileID: 982618981}
   warningImage: {fileID: 517046696}
-  totalTime: 12
+  totalTime: 300
   nextSceneName: Die
   transitionTime: 1.5
   warningSound: {fileID: 1178801166}
