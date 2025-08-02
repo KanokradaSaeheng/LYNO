@@ -115700,13 +115700,13 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 2950633770188738167, guid: 3d40dd768c83d3046a3cf320c4c59111, type: 3}
   m_PrefabInstance: {fileID: 945510090}
   m_PrefabAsset: {fileID: 0}
---- !u!43 &1129560765
+--- !u!43 &1130004735
 Mesh:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh-262882
+  m_Name: pb_Mesh-262882(Clone)
   serializedVersion: 11
   m_SubMeshes:
   - serializedVersion: 2
@@ -177678,6 +177678,7 @@ GameObject:
   - component: {fileID: 1674951866}
   - component: {fileID: 1674951865}
   - component: {fileID: 1674951864}
+  - component: {fileID: 1674951871}
   m_Layer: 0
   m_Name: Player (2)
   m_TagString: Player
@@ -177774,7 +177775,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1674951862}
-  m_Mesh: {fileID: 1129560765}
+  m_Mesh: {fileID: 1130004735}
 --- !u!23 &1674951868
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -178055,12 +178056,24 @@ MonoBehaviour:
     m_AreaError: 15
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
-  m_Mesh: {fileID: 1129560765}
+  m_Mesh: {fileID: 1130004735}
   m_VersionIndex: 2340
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
   m_SelectedVertices: 
+--- !u!114 &1674951871
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1674951862}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52068a164a64a9d4387ce6f8a4e3f904, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &1675160052 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1459792624, guid: e33537c4b4642ff4d851e65110d8838d, type: 3}
