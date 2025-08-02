@@ -7,6 +7,9 @@ public class Movement : MonoBehaviour
     public float moveDistance = 1f;
     public float moveSpeed = 5f;
 
+    [Header("Teleport Settings")]
+    public float teleportSpeed = 10f;
+
     [Header("Camera & View Settings")]
     public CameraFollow cameraFollow;
     public bool is2DMode = false;
@@ -54,7 +57,7 @@ public class Movement : MonoBehaviour
                 controlSide = controlSide,
                 zone = activeZone
             };
-            // DO NOT RETURN — continue to rotate and process teleport after
+            // Do NOT return — allow rotation & movement to process
         }
 
         Vector3 nextPos = transform.position + inputDir * moveDistance;
@@ -79,10 +82,22 @@ public class Movement : MonoBehaviour
         {
             switch (active2DOffsetIndex)
             {
-                case 0: if (isLeft) { direction = Vector3.back; controlSide = "Left"; } else if (isRight) { direction = Vector3.forward; controlSide = "Right"; } break;
-                case 1: if (isLeft) { direction = Vector3.left; controlSide = "Left"; } else if (isRight) { direction = Vector3.right; controlSide = "Right"; } break;
-                case 2: if (isLeft) { direction = Vector3.forward; controlSide = "Left"; } else if (isRight) { direction = Vector3.back; controlSide = "Right"; } break;
-                case 3: if (isLeft) { direction = Vector3.right; controlSide = "Left"; } else if (isRight) { direction = Vector3.left; controlSide = "Right"; } break;
+                case 0:
+                    if (isLeft) { direction = Vector3.back; controlSide = "Left"; }
+                    else if (isRight) { direction = Vector3.forward; controlSide = "Right"; }
+                    break;
+                case 1:
+                    if (isLeft) { direction = Vector3.left; controlSide = "Left"; }
+                    else if (isRight) { direction = Vector3.right; controlSide = "Right"; }
+                    break;
+                case 2:
+                    if (isLeft) { direction = Vector3.forward; controlSide = "Left"; }
+                    else if (isRight) { direction = Vector3.back; controlSide = "Right"; }
+                    break;
+                case 3:
+                    if (isLeft) { direction = Vector3.right; controlSide = "Left"; }
+                    else if (isRight) { direction = Vector3.left; controlSide = "Right"; }
+                    break;
             }
             return;
         }
@@ -95,7 +110,11 @@ public class Movement : MonoBehaviour
         foreach (float angle in angles)
         {
             float diff = Mathf.Abs(Mathf.DeltaAngle(yRot, angle));
-            if (diff < minDiff) { closest = angle; minDiff = diff; }
+            if (diff < minDiff)
+            {
+                closest = angle;
+                minDiff = diff;
+            }
         }
 
         if (isLeft)
@@ -158,13 +177,18 @@ public class Movement : MonoBehaviour
             yield return StartCoroutine(RotateToDirection(flatDirection));
         }
 
+        // Check for teleport trigger after rotation
         if (pendingTeleport != null)
         {
             var data = pendingTeleport.Value;
             pendingTeleport = null;
-            data.zone.TryTeleport(data.viewIndex, data.controlSide);
-            isMoving = false;
-            yield break;
+
+            if (data.zone != null)
+            {
+                data.zone.TryTeleport(data.viewIndex, data.controlSide);
+                isMoving = false;
+                yield break;
+            }
         }
 
         while (Vector3.Distance(transform.position, destination) > 0.01f)
@@ -182,7 +206,8 @@ public class Movement : MonoBehaviour
         Quaternion targetRot = Quaternion.LookRotation(moveDir, Vector3.up);
         float rotateSpeed = 10f;
 
-        if (animator != null) animator.SetBool("IsTurning", true);
+        if (animator != null)
+            animator.SetBool("IsTurning", true);
 
         while (Quaternion.Angle(transform.rotation, targetRot) > 0.1f)
         {
@@ -192,12 +217,13 @@ public class Movement : MonoBehaviour
 
         transform.rotation = targetRot;
 
-        if (animator != null) animator.SetBool("IsTurning", false);
+        if (animator != null)
+            animator.SetBool("IsTurning", false);
     }
 
     public void TeleportTo(Vector3 destination)
     {
-        StopAllCoroutines(); // force override
+        StopAllCoroutines(); // force override current move
         StartCoroutine(TeleportAsSmoothMove(destination));
     }
 
@@ -213,7 +239,7 @@ public class Movement : MonoBehaviour
 
         while (Vector3.Distance(transform.position, destination) > 0.01f)
         {
-            transform.position = Vector3.MoveTowards(transform.position, destination, moveSpeed * Time.deltaTime);
+            transform.position = Vector3.MoveTowards(transform.position, destination, teleportSpeed * Time.deltaTime);
             yield return null;
         }
 

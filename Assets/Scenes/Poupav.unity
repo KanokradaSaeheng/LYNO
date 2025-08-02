@@ -9624,9 +9624,9 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_Size: {x: 0.75, y: 1, z: 0.75}
   m_Center: {x: 0, y: 0, z: 0}
@@ -10364,7 +10364,7 @@ Transform:
   m_GameObject: {fileID: 722195059}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.5, y: 11, z: 2.5}
+  m_LocalPosition: {x: -0.5, y: 11, z: 37.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -10384,6 +10384,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveDistance: 1
   moveSpeed: 5
+  teleportSpeed: 20
   cameraFollow: {fileID: 674607059}
   is2DMode: 0
   active2DOffsetIndex: 0
@@ -23994,7 +23995,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   teleportEntries:
   - is2DEntry: 0
-    viewIndex: 0
+    viewIndex: 2
     controlSide: Left
     targetPosition: {fileID: 1535570003}
   - is2DEntry: 0
