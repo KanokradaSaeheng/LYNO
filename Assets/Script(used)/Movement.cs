@@ -20,6 +20,9 @@ public class Movement : MonoBehaviour
     public float checkDistance = 1f;
     public float checkBoxSize = 0.4f;
 
+    [Header("Animation")]
+    public Animator catAnimator; // Assign the cat's Animator in Inspector
+
     private bool isMoving = false;
     private IllusionTeleportByViewIndex illusionSystem;
     private Animator animator;
@@ -34,8 +37,13 @@ public class Movement : MonoBehaviour
 
     void Start()
     {
-        illusionSystem = FindObjectOfType<IllusionTeleportByViewIndex>();
+        // Use the new recommended method
+        illusionSystem = FindFirstObjectByType<IllusionTeleportByViewIndex>();
         animator = GetComponent<Animator>();
+
+        // Auto-assign child Animator if not set
+        if (catAnimator == null)
+            catAnimator = GetComponentInChildren<Animator>();
     }
 
     private void Update()
@@ -62,7 +70,6 @@ public class Movement : MonoBehaviour
                 controlSide = controlSide,
                 zone = activeZone
             };
-            // Continue to rotate and evaluate move
         }
 
         if (IsBlocked(inputDir))
@@ -81,11 +88,9 @@ public class Movement : MonoBehaviour
         Vector3 halfExtents = Vector3.one * checkBoxSize * 0.5f;
 
         bool hit = Physics.BoxCast(origin, halfExtents, direction.normalized, Quaternion.identity, checkDistance, obstacleLayer);
-
 #if UNITY_EDITOR
         Debug.DrawRay(origin, direction.normalized * checkDistance, hit ? Color.red : Color.green, 0.5f);
 #endif
-
         return hit;
     }
 
@@ -131,7 +136,6 @@ public class Movement : MonoBehaviour
         float[] angles = { 45f, 135f, 225f, 315f };
         float closest = angles[0];
         float minDiff = Mathf.Infinity;
-
         foreach (float angle in angles)
         {
             float diff = Mathf.Abs(Mathf.DeltaAngle(yRot, angle));
@@ -201,6 +205,9 @@ public class Movement : MonoBehaviour
             Vector3 flatDirection = new Vector3(moveDirection.x, 0f, moveDirection.z);
             yield return StartCoroutine(RotateToDirection(flatDirection));
         }
+
+        if (catAnimator != null)
+            catAnimator.Play("WalkStep");
 
         if (pendingTeleport != null)
         {
