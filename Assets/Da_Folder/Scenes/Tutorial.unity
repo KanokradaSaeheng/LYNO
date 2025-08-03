@@ -177989,7 +177989,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 1024
   checkDistance: 1
-  checkBoxSize: 0.4
+  checkBoxSize: 0.5
 --- !u!65 &1674951865
 BoxCollider:
   m_ObjectHideFlags: 0
