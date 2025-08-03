@@ -20024,6 +20024,52 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!1 &944161615
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 944161617}
+  - component: {fileID: 944161616}
+  m_Layer: 0
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &944161616
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 944161615}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5d1c02cb397e794ebd7197c2bdab80f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  catAnimator: {fileID: 943492667}
+  screenSplit: 0.5
+--- !u!4 &944161617
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 944161615}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 2.6083648, y: 11.518812, z: 3.0079784}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &952055351
 GameObject:
   m_ObjectHideFlags: 0
@@ -23174,13 +23220,13 @@ MonoBehaviour:
   m_SelectedFaces: 
   m_SelectedEdges: []
   m_SelectedVertices: 
---- !u!43 &1120132753
+--- !u!43 &1109412989
 Mesh:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh-394892(Clone)
+  m_Name: pb_Mesh-394892(Clone)(Clone)
   serializedVersion: 11
   m_SubMeshes:
   - serializedVersion: 2
@@ -29808,7 +29854,6 @@ GameObject:
   - component: {fileID: 1445180956}
   - component: {fileID: 1445180955}
   - component: {fileID: 1445180954}
-  - component: {fileID: 1445180963}
   m_Layer: 0
   m_Name: Player (2)
   m_TagString: Player
@@ -29864,7 +29909,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1445180952}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c0c992c088c44b745aa12e09b493b40e, type: 3}
   m_Name: 
@@ -29880,7 +29925,6 @@ MonoBehaviour:
     m_Bits: 1024
   checkDistance: 1
   checkBoxSize: 0.5
-  catAnimator: {fileID: 0}
 --- !u!65 &1445180957
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -29936,7 +29980,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1445180952}
-  m_Mesh: {fileID: 1120132753}
+  m_Mesh: {fileID: 1109412989}
 --- !u!23 &1445180960
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -30217,36 +30261,12 @@ MonoBehaviour:
     m_AreaError: 15
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
-  m_Mesh: {fileID: 1120132753}
+  m_Mesh: {fileID: 1109412989}
   m_VersionIndex: 2340
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
   m_SelectedVertices: 
---- !u!114 &1445180963
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1445180952}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6eace08658ccbbb458a15ee30f0f9fc0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  moveDistance: 1
-  moveSpeed: 5
-  teleportSpeed: 10
-  cameraFollow: {fileID: 179482539}
-  is2DMode: 0
-  active2DOffsetIndex: 0
-  obstacleLayer:
-    serializedVersion: 2
-    m_Bits: 0
-  checkDistance: 1
-  checkBoxSize: 0.5
-  catAnimator: {fileID: 943492667}
 --- !u!1 &1448160289
 GameObject:
   m_ObjectHideFlags: 0
@@ -46274,3 +46294,4 @@ SceneRoots:
   - {fileID: 1085251159}
   - {fileID: 519510868}
   - {fileID: 1723425559}
+  - {fileID: 944161617}
