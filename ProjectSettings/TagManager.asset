@@ -11,7 +11,6 @@ TagManager:
   - Door
   - FxTemporaire
   - Enemy
-  - Ground
   layers:
   - Default
   - TransparentFX
