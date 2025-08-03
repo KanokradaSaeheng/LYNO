@@ -255,11 +255,11 @@ public class Movement : MonoBehaviour
     {
         isMoving = true;
 
-        Vector3 moveDir = destination - transform.position;
-        moveDir.y = 0;
+        Vector3 dir = destination - transform.position;
+        dir.y = 0;
 
-        if (moveDir != Vector3.zero)
-            yield return StartCoroutine(RotateToDirection(moveDir));
+        if (dir != Vector3.zero)
+            yield return StartCoroutine(RotateToDirection(dir));
 
         while (Vector3.Distance(transform.position, destination) > 0.01f)
         {
@@ -270,4 +270,5 @@ public class Movement : MonoBehaviour
         transform.position = destination;
         isMoving = false;
     }
+
 }

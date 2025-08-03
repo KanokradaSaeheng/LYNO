@@ -18,28 +18,37 @@ public class IllusionTeleportByViewIndex : MonoBehaviour
     public bool onlyOnce = true;
 
     private bool isPlayerInZone = false;
-    private Transform cachedPlayer;
     private bool hasTeleported = false;
+    private Transform cachedPlayer;
 
-    private void Start()
-    {
-        IllusionTeleportManager.Instance?.RegisterZone(this);
-    }
+    private string queuedControl = null;
+    private int queuedViewIndex = -1;
 
-    private void OnDestroy()
+    private void Start() => IllusionTeleportManager.Instance?.RegisterZone(this);
+    private void OnDestroy() => IllusionTeleportManager.Instance?.UnregisterZone(this);
+
+    private void Update()
     {
-        IllusionTeleportManager.Instance?.UnregisterZone(this);
+        if (!isPlayerInZone || cachedPlayer == null || string.IsNullOrEmpty(queuedControl)) return;
+
+        if (IsGroundedByTag(cachedPlayer))
+        {
+            if (MatchesTeleportCondition(queuedViewIndex, queuedControl))
+            {
+                TryTeleport(queuedViewIndex, queuedControl);
+                queuedControl = null;
+                queuedViewIndex = -1;
+            }
+        }
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (!other.CompareTag(playerTag)) return;
-        if (onlyOnce && hasTeleported) return;
+        if (!other.CompareTag(playerTag) || (onlyOnce && hasTeleported)) return;
 
         cachedPlayer = other.transform;
         isPlayerInZone = true;
-
-        Debug.Log($"🟡 Player ENTERED teleport zone: {gameObject.name}");
+        Debug.Log($"🟡 ENTERED teleport zone: {gameObject.name}");
     }
 
     private void OnTriggerExit(Collider other)
@@ -48,34 +57,41 @@ public class IllusionTeleportByViewIndex : MonoBehaviour
 
         isPlayerInZone = false;
         cachedPlayer = null;
+        queuedControl = null;
+        queuedViewIndex = -1;
 
-        Debug.Log($"⚪ Player EXITED teleport zone: {gameObject.name}");
+        Debug.Log($"⚪ EXITED teleport zone: {gameObject.name}");
     }
 
     public bool ShouldBlockControl(int viewIndex, string controlSide)
     {
-        if (!isPlayerInZone) return false;
-        if (onlyOnce && hasTeleported) return false;
+        if (!isPlayerInZone || (onlyOnce && hasTeleported)) return false;
 
-        if (cachedPlayer != null && cachedPlayer.TryGetComponent<Rigidbody>(out Rigidbody rb))
+        if (cachedPlayer != null)
         {
-            if (!IsGrounded(rb))
+            if (!IsGroundedByTag(cachedPlayer))
             {
-                Debug.Log("⏸️ Player not grounded yet — delaying teleport trigger.");
+                // queue teleport input
+                queuedControl = controlSide;
+                queuedViewIndex = viewIndex;
+                Debug.Log("🕳️ Falling into zone, queued teleport...");
                 return false;
             }
         }
 
-        bool currentMode2D = DimensionManager.Is2DModeStatic;
-        int currentIndex = currentMode2D ? GetCurrent2DIndex() : GetCurrentViewIndex();
+        return MatchesTeleportCondition(viewIndex, controlSide);
+    }
+
+    private bool MatchesTeleportCondition(int viewIndex, string controlSide)
+    {
+        bool is2D = DimensionManager.Is2DModeStatic;
+        int currentIndex = is2D ? GetCurrent2DIndex() : GetCurrentViewIndex();
 
         foreach (var entry in teleportEntries)
         {
-            if (entry.is2DEntry != currentMode2D) continue;
-
-            if (entry.viewIndex == currentIndex && entry.controlSide == controlSide)
+            if (entry.is2DEntry == is2D && entry.viewIndex == currentIndex && entry.controlSide == controlSide)
             {
-                Debug.Log($"🟢 Teleport condition met: [{(currentMode2D ? "2D" : "3D")}] Index={currentIndex}, Side={controlSide}");
+                Debug.Log($"🟢 Teleport Match: [{(is2D ? "2D" : "3D")}] Index={currentIndex} Side={controlSide}");
                 return true;
             }
         }
@@ -83,30 +99,25 @@ public class IllusionTeleportByViewIndex : MonoBehaviour
         return false;
     }
 
-    // Same top, no change in variables...
-
-    public void TryTeleport(int viewIndex, string attemptedControlSide)
+    public void TryTeleport(int viewIndex, string controlSide)
     {
         if (!isPlayerInZone || cachedPlayer == null) return;
 
-        bool currentMode2D = DimensionManager.Is2DModeStatic;
-        int currentIndex = currentMode2D ? GetCurrent2DIndex() : viewIndex;
+        bool is2D = DimensionManager.Is2DModeStatic;
+        int currentIndex = is2D ? GetCurrent2DIndex() : viewIndex;
 
         foreach (var entry in teleportEntries)
         {
-            if (entry.is2DEntry != currentMode2D) continue;
-
-            if (entry.viewIndex == currentIndex && entry.controlSide == attemptedControlSide)
+            if (entry.is2DEntry == is2D && entry.viewIndex == currentIndex && entry.controlSide == controlSide)
             {
                 Debug.Log($"🚀 Teleporting to: {entry.targetPosition.position}");
 
-                if (cachedPlayer.TryGetComponent<Movement>(out Movement moveScript))
+                if (cachedPlayer.TryGetComponent<Movement>(out var moveScript))
                 {
                     moveScript.TeleportTo(entry.targetPosition.position);
                 }
                 else
                 {
-                    Debug.LogWarning("❌ No Movement script found on player!");
                     cachedPlayer.position = entry.targetPosition.position;
                 }
 
@@ -116,52 +127,51 @@ public class IllusionTeleportByViewIndex : MonoBehaviour
                     isPlayerInZone = false;
                     cachedPlayer = null;
                 }
-                else
-                {
-                    StartCoroutine(DisableZoneTemporarily()); // prevents back-forth
-                }
 
                 StartCoroutine(ForceRecheckZone());
                 return;
             }
         }
 
-        Debug.LogWarning("❌ No matching teleport entry found for ViewIndex=" + currentIndex + ", Side=" + attemptedControlSide);
-    }
-
-    private IEnumerator DisableZoneTemporarily()
-    {
-        isPlayerInZone = false;
-        yield return new WaitForSeconds(0.3f);
-        isPlayerInZone = true;
-    }
-
-
-    private bool IsGrounded(Rigidbody rb)
-    {
-        return Mathf.Abs(rb.velocity.y) < 0.01f;
+        Debug.LogWarning($"❌ No teleport match found for index={currentIndex}, side={controlSide}");
     }
 
     private IEnumerator ForceRecheckZone()
     {
         yield return null;
-
         if (cachedPlayer == null)
-        {
             cachedPlayer = GameObject.FindGameObjectWithTag(playerTag)?.transform;
-            if (cachedPlayer == null) yield break;
-        }
 
-        Collider[] overlapping = Physics.OverlapSphere(cachedPlayer.position, 0.1f);
-        foreach (var col in overlapping)
+        if (cachedPlayer != null)
         {
-            if (col.gameObject == gameObject)
+            Collider[] hits = Physics.OverlapSphere(cachedPlayer.position, 0.1f);
+            foreach (var col in hits)
             {
-                Debug.Log("🔁 Force-retriggered OnTriggerEnter after teleport.");
-                OnTriggerEnter(col);
-                break;
+                if (col.gameObject == gameObject)
+                {
+                    OnTriggerEnter(col);
+                    break;
+                }
             }
         }
+    }
+
+    /// <summary>
+    /// Check if the player is touching a ground-tagged collider below them.
+    /// </summary>
+    private bool IsGroundedByTag(Transform player)
+    {
+        Vector3 checkPosition = player.position + Vector3.down * 0.1f;
+        float radius = 0.2f;
+
+        Collider[] hits = Physics.OverlapSphere(checkPosition, radius);
+        foreach (var hit in hits)
+        {
+            if (hit.CompareTag("Ground") && hit.gameObject != gameObject)
+                return true;
+        }
+
+        return false;
     }
 
     public bool IsPlayerInZone() => isPlayerInZone;
@@ -174,8 +184,8 @@ public class IllusionTeleportByViewIndex : MonoBehaviour
 
     private int GetCurrent2DIndex()
     {
-        Movement movement = GameObject.FindGameObjectWithTag(playerTag)?.GetComponent<Movement>();
-        return movement != null ? movement.active2DOffsetIndex : -1;
+        Movement move = GameObject.FindGameObjectWithTag(playerTag)?.GetComponent<Movement>();
+        return move != null ? move.active2DOffsetIndex : -1;
     }
 
 #if UNITY_EDITOR

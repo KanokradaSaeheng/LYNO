@@ -9,9 +9,8 @@ public class IllusionTeleportManager : MonoBehaviour
     void Awake()
     {
         Instance = this;
-        Debug.Log("IllusionTeleportManager is alive.");
+        Debug.Log("✅ IllusionTeleportManager initialized.");
     }
-
 
     public void RegisterZone(IllusionTeleportByViewIndex zone)
     {
@@ -28,7 +27,7 @@ public class IllusionTeleportManager : MonoBehaviour
     {
         foreach (var zone in teleportZones)
         {
-            if (zone.IsPlayerInZone())
+            if (zone.IsPlayerInZone()) // ✅ Capital "I"
                 return zone;
         }
         return null;
