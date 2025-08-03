@@ -20,6 +20,10 @@ public class Movement : MonoBehaviour
     public float checkDistance = 1f;
     public float checkBoxSize = 0.4f;
 
+    [Header("Model & Audio")]
+    public Animator modelAnimator; // Animator on child model
+    public AudioSource walkSFX;    // Walk sound effect
+
     private bool isMoving = false;
     private IllusionTeleportByViewIndex illusionSystem;
     private Animator animator;
@@ -196,6 +200,12 @@ public class Movement : MonoBehaviour
     {
         isMoving = true;
 
+        if (walkSFX != null)
+            walkSFX.Play();
+
+        if (modelAnimator != null)
+            modelAnimator.SetBool("IsWalking", true);
+
         if (moveDirection != Vector3.zero)
         {
             Vector3 flatDirection = new Vector3(moveDirection.x, 0f, moveDirection.z);
@@ -211,6 +221,8 @@ public class Movement : MonoBehaviour
             {
                 data.zone.TryTeleport(data.viewIndex, data.controlSide);
                 isMoving = false;
+                if (modelAnimator != null)
+                    modelAnimator.SetBool("IsWalking", false);
                 yield break;
             }
         }
@@ -222,7 +234,11 @@ public class Movement : MonoBehaviour
         }
 
         transform.position = destination;
+
         isMoving = false;
+
+        if (modelAnimator != null)
+            modelAnimator.SetBool("IsWalking", false);
     }
 
     IEnumerator RotateToDirection(Vector3 moveDir)
